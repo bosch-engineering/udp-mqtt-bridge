@@ -5,5 +5,6 @@ awsIotKey: "certs/private.key"
 awsClientId: "udp-mqtt-bridge"
 mqttTopicIn: "topic/in"
 mqttTopicOut: "topic/out"
+udpTargetIp: "255.255.255.255"
 udpPortIn: 5005
 udpPortOut: 5006
