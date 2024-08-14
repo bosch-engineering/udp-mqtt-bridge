@@ -1,0 +1,9 @@
+awsIoTEndpoint: "*************-ats.iot.eu-central-1.amazonaws.com"
+awsIotRootCA: "certs/AmazonRootCA1.pem"
+awsIotCert: "certs/cert.pem"
+awsIotKey: "certs/private.key"
+awsClientId: "udp-mqtt-bridge"
+mqttTopicIn: "topic/in"
+mqttTopicOut: "topic/out"
+udpPortIn: 5005
+udpPortOut: 5006
