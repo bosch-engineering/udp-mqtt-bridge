@@ -38,8 +38,31 @@ jobs:
           name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
           path: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
 
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Build WASM binary
+        run: |
+          GOARCH=wasm GOOS=js go build -o udp-mtqq-bridge.wasm
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: udp-mtqq-bridge.wasm
+          path: udp-mtqq-bridge.wasm
+
   release:
-    needs: build
+    needs:
+      - build
+      - build-wasm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -52,13 +75,14 @@ jobs:
           release-type: go
 
       - name: Download artifacts
+        if: ${{ steps.create_release.outputs.release_created }}
         uses: actions/download-artifact@v4
         with:
-          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          name: udp-mtqq-bridge-*
           path: ./artifacts
 
       - name: Upload Release Artifact
         if: ${{ steps.create_release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-${{ steps.create_release.outputs.tag_name }}-${{ matrix.os }}-${{ matrix.arch }}
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-*
