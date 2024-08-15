@@ -18,6 +18,9 @@ func (u *UDPConn) Receive() <-chan []byte {
 
 // NewConnection creates a new UDP connection.
 func NewConnection(ip string, portIn, portOut int) (*Connection, error) {
+	log.Printf("Initializing UDP connection on port %d", portIn)
+	log.Printf("Sending UDP packets to port %d", portOut)
+
 	// Initialize UDP connection
 	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(ip, fmt.Sprint(portIn)))
 	if err != nil {
@@ -67,10 +70,12 @@ func (c *Connection) Receive() chan []byte {
 }
 
 func (c *Connection) Send(data []byte) error {
-	addr, err := c.RemoteAddress("255.255.255.255", 5005)
+	addr, err := c.RemoteAddress("255.255.255.255", 57372)
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Sending UDP packet: %s", string(data))
 
 	_, err = c.conn.WriteToUDP(data, addr)
 	if err != nil {

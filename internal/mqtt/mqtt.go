@@ -45,12 +45,14 @@ func NewClient(endpoint, clientID, certFile, keyFile, caFile string) (*MQTTClien
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", endpoint, 8883))
 	opts.SetClientID(clientID)
 	opts.SetTLSConfig(tlsConfig)
-	opts.SetOrderMatters(true)
+	// opts.SetOrderMatters(true)
+	// opts.SetAutoReconnect(true)
+	// opts.SetConnectRetry(true)
 
 	client := mqtt.NewClient(opts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		return nil, fmt.Errorf("failed to connect to AWS IoT Core: %v", token.Error())
-	}
+	// if token := client.Connect(); token.Wait() && token.Error() != nil {
+	// 	return nil, fmt.Errorf("failed to connect to AWS IoT Core: %v", token.Error())
+	// }
 
 	mqttClient := &MQTTClient{
 		client:      client,
@@ -58,9 +60,9 @@ func NewClient(endpoint, clientID, certFile, keyFile, caFile string) (*MQTTClien
 	}
 
 	// Subscribe to a topic to receive messages
-	if err := mqttClient.Subscribe("topic/in", 1, mqttClient.messageHandler); err != nil {
-		return nil, fmt.Errorf("failed to subscribe to topic: %v", err)
-	}
+	// if err := mqttClient.Subscribe("topic/in", 1, mqttClient.messageHandler); err != nil {
+	// 	return nil, fmt.Errorf("failed to subscribe to topic: %v", err)
+	// }
 
 	return mqttClient, nil
 }
@@ -90,8 +92,8 @@ func (c *MQTTClient) Send(topic string, payload interface{}) error {
 }
 
 // Method to receive MQTT messages
-func (m *MQTTClient) Receive() <-chan []byte {
-	return m.receiveChan
+func (c *MQTTClient) Receive() <-chan []byte {
+	return c.receiveChan
 }
 
 // Internal message handler to send received messages to the receiveChan
@@ -100,5 +102,4 @@ func (c *MQTTClient) messageHandler(client mqtt.Client, msg mqtt.Message) {
 	log.Printf("Received message: %s", string(msg.Payload()))
 	log.Printf("Received message on topic: %s", msg.Topic())
 	log.Printf("ClientID: %t", client.IsConnected())
-
 }

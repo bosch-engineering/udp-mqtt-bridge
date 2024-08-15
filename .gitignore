@@ -9,3 +9,4 @@ client.key
 *private.pem.key
 config/configs.yaml
 .env
+udp-mtqq-bridge
