@@ -5,6 +5,6 @@ awsIotKey: "certs/private.pem.key"
 awsClientId: "rbo2abt-rimac-demo"
 mqttTopicIn: "in"
 mqttTopicOut: "out"
-udpTargetIp: "127.0.0.1"
+udpTargetIp: "172.29.225.214"
 udpPortIn: 5000
 udpPortOut: 61130
