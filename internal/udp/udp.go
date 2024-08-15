@@ -69,13 +69,13 @@ func (c *Connection) Receive() chan []byte {
 	return ch
 }
 
-func (c *Connection) Send(data []byte) error {
-	addr, err := c.RemoteAddress("255.255.255.255", 57372)
+func (c *Connection) Send(data []byte, ip string, port int) error {
+	addr, err := c.RemoteAddress(ip, port)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Sending UDP packet: %s", string(data))
+	log.Printf("Sending UDP packet: %s to %s:%d", string(data), ip, port)
 
 	_, err = c.conn.WriteToUDP(data, addr)
 	if err != nil {
