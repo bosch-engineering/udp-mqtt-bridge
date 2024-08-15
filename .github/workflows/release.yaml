@@ -62,6 +62,5 @@ jobs:
         if: ${{ steps.create_release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-*
-          gh release upload ${{ steps.create_release.outputs.tag_name }} configs/config.sample.yaml
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-*
+        # gh release upload ${{ steps.create_release.outputs.tag_name }} configs/config.sample.yaml
