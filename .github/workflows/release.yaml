@@ -30,7 +30,7 @@ jobs:
 
       - name: Build binary
         run: |
-          GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }} go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }} go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }} ./cmd/main.go
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -51,7 +51,7 @@ jobs:
 
       - name: Build WASM binary
         run: |
-          GOARCH=wasm GOOS=js go build -o udp-mtqq-bridge.wasm
+          GOARCH=wasm GOOS=js go build -o udp-mtqq-bridge.wasm ./cmd/main.go
 
       - name: Upload WASM artifact
         uses: actions/upload-artifact@v4
