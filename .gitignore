@@ -4,4 +4,8 @@ client.key
 *cert.pem
 *public.key
 *private.key
+*certificate.pem.crt
+*public.pem.key
+*private.pem.key
 config/configs.yaml
+.env

@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Build binary
+        run: |
+          GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }} go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          path: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: go
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./artifacts
+
+      - name: Upload Release Artifact
+        if: ${{ steps.create_release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-${{ steps.create_release.outputs.tag_name }}-${{ matrix.os }}-${{ matrix.arch }}

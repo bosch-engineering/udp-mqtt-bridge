@@ -45,6 +45,7 @@ func NewClient(endpoint, clientID, certFile, keyFile, caFile string) (*MQTTClien
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", endpoint, 8883))
 	opts.SetClientID(clientID)
 	opts.SetTLSConfig(tlsConfig)
+	opts.SetOrderMatters(true)
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
