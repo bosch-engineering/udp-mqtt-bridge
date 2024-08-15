@@ -30,7 +30,7 @@ jobs:
 
       - name: Build binary
         run: |
-          GOARCH=${{ matrix.arch }} GOOS=${{ matrix.os }} go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }} ./cmd/main.go
+          GOARCH=${{ matrix.arch }} go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }} ./cmd/main.go
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
