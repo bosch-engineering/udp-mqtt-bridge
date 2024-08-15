@@ -3,8 +3,8 @@ awsIotRootCA: "certs/AmazonRootCA1.pem"
 awsIotCert: "certs/certificate.pem.crt"
 awsIotKey: "certs/private.pem.key"
 awsClientId: "rbo2abt-rimac-demo"
-mqttTopicIn: "topic/in"
-mqttTopicOut: "topic/out"
+mqttTopicIn: "in"
+mqttTopicOut: "out"
 udpTargetIp: "255.255.255.255"
 udpPortIn: 5005
-udpPortOut: 5006
+udpPortOut: 57372
