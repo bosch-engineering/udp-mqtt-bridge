@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"udp_mqtt_bridge/internal/mqtt"
 	"udp_mqtt_bridge/internal/udp"
 	"udp_mqtt_bridge/pkg/utils"
@@ -104,7 +105,7 @@ func main() {
 
 	log.Printf("")
 	log.Println("Press 'space' to send a send a ping.")
-	log.Println("Press 'q' or 'Esc' to quit.")
+	log.Println("Press 'q', 'esc' or 'ctrl+c' to quit.")
 	defer keyboard.Close()
 
 	// Main application loop
@@ -122,7 +123,7 @@ func main() {
 				// Handle MQTT messages
 				log.Printf("Received MQTT message: %s", string(mqttMsg))
 				// Process the MQTT message and possibly send it to UDP
-				udpConn.Send([]byte(mqttMsg))
+				udpConn.Send([]byte(mqttMsg), config.UDPTargetIp, config.UDPPortOut)
 			}
 		}
 	}()
@@ -132,10 +133,10 @@ func main() {
 		char, key, _ := keyboard.GetKey()
 		if key == keyboard.KeySpace {
 			log.Println("Space bar pressed, sending UDP ping message")
-			udpConn.Send([]byte("ping"))
+			udpConn.Send([]byte("ping"), config.UDPTargetIp, config.UDPPortOut)
 			mqttClient.Send(string("ping-test"), nil)
 		}
-		if char == 'q' || key == keyboard.KeyEsc {
+		if char == 'q' || key == keyboard.KeyEsc || (key == keyboard.KeyCtrlC && runtime.GOOS != "windows") {
 			log.Println("Exiting...")
 			break
 		}
