@@ -54,9 +54,9 @@ jobs:
         run: |
           xcopy certs out\certs /E /I /Y
           xcopy configs out\configs /E /I /Y
-          xcopy LICENSE out/LICENSE /E /I /Y
-          xcopy CHANGELOG.md out /I /Y
-          xcopy README.md out /I /Y
+          xcopy LICENSE out\ /E /I /Y
+          xcopy CHANGELOG.md out\ /E /I /Y
+          xcopy README.md out\ /E /I /Y
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -89,7 +89,7 @@ jobs:
       - name: Zip artifacts
         if: ${{ steps.create_release.outputs.release_created }}
         run: |
-          find artifacts -mindepth 1 -maxdepth 1 -type d -exec zip -r {}.zip {} \;
+          find artifacts -mindepth 1 -maxdepth 1 -type d -exec sh -c 'cd {} && zip -r ../$(basename {}).zip * -x .gitkeep' \;
           find artifacts -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;
 
       - name: Upload Release Artifact
@@ -98,7 +98,6 @@ jobs:
         with:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
           files: |
-            - artifacts/*
-            - README.md
-            - CHANGELOG.md
-            - LICENSE
+            artifacts/*
+            CHANGELOG.md
+            LICENSE
