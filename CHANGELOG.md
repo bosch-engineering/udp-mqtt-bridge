@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.9](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.8...v1.0.9) (2024-08-16)
+
+
+### Bug Fixes
+
+* cleanup ([665cb6a](https://github.com/BernhardRode/udp-mqtt-bridge/commit/665cb6a0900b378cbc8fb88c2e0cc49c2992f685))
+* pipeline issue ([b2443eb](https://github.com/BernhardRode/udp-mqtt-bridge/commit/b2443eb330eb1fb7aa407c999c878bd950e23220))
+* zip the artifacts ([e69d2ad](https://github.com/BernhardRode/udp-mqtt-bridge/commit/e69d2ad6794614996bdcb1ba162111eef578b454))
+
 ## [1.0.8](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.7...v1.0.8) (2024-08-16)
 
 
