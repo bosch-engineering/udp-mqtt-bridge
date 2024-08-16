@@ -86,4 +86,4 @@ jobs:
         with:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
           files: |
-            artifacts/udp-mtqq-bridge-*
+            artifacts/*
