@@ -45,12 +45,18 @@ jobs:
         run: |
           cp -r certs out/certs
           cp -r configs out/configs
+          cp -r LICENSE out/
+          cp -r CHANGELOG.md out/
+          cp -r README.md out/
 
       - name: Copy certs and configs
         if: ${{ matrix.os == 'windows' }}
         run: |
           xcopy certs out\certs /E /I /Y
           xcopy configs out\configs /E /I /Y
+          xcopy LICENSE out\ /E /I /Y
+          xcopy CHANGELOG.md out\ /E /I /Y
+          xcopy README.md out\ /E /I /Y
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -91,4 +97,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
-          files: artifacts/*
+          files: |
+            - artifacts/*
+            - CHANGELOG.md
+            - LICENSE
