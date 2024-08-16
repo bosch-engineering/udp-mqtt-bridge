@@ -37,28 +37,8 @@ jobs:
         if: ${{ matrix.os == 'windows' }}
         run: echo "EXTENSION=.exe" | Out-File -FilePath $env:GITHUB_ENV -Append # no need for -Encoding utf8
 
-      - name: DEBUG Windows
-        if: ${{ matrix.os == 'windows' }}
-        run: echo $env:EXTENSION
-
-      - name: DEBUG Windows
-        if: ${{ matrix.os == 'windows' }}
-        run: echo ${{ env.EXTENSION }}
-
-      - name: DEBUG Unix
-        if: ${{ matrix.os != 'windows' }}
-        run: echo "$EXTENSION"
-
       - name: Build binary
         run: go build -o "out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}" ./cmd/main.go
-
-      - name: DEBUG Windows
-        if: ${{ matrix.os == 'windows' }}
-        run: dir out
-
-      - name: DEBUG Linux
-        if: ${{ matrix.os != 'windows' }}
-        run: ls out
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -66,30 +46,11 @@ jobs:
           name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
           path: out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}
 
-  configs:
-    name: ⚙️ Configurations
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: configs
-          path: configs
-          if-no-files-found: "ignore"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: certs
-          path: certs
-          if-no-files-found: "ignore"
-
   release:
     name: 🚀 Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
-      - configs
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
