@@ -45,3 +45,24 @@ func ParseCloudEvent(payload string) (map[string]interface{}, error) {
 
 	return event, nil
 }
+
+// MarshallCloudEvent converts a CloudEvent struct to a JSON byte array.
+func MarshallCloudEvent(event *CloudEvent) ([]byte, error) {
+	jsonData, err := json.Marshal(event)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonData, nil
+}
+
+// UnmarshalCloudEvent converts a JSON byte array to a CloudEvent struct.
+func UnmarshalCloudEvent(payload []byte) (*CloudEvent, error) {
+	var event CloudEvent
+	err := json.Unmarshal(payload, &event)
+	if err != nil {
+		return nil, err
+	}
+
+	return &event, nil
+}
