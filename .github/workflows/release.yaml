@@ -89,6 +89,6 @@ jobs:
         # if: ${{ steps.create_release.outputs.release_created }}
         with:
           tag_name: v1.0.2
-          files: artifacts
+          files: artifacts/*
         # run: gh release upload v1.0.2 artifacts/udp-mtqq-bridge-*
         # ${{ steps.create_release.outputs.tag_name }}
