@@ -7,6 +7,6 @@ client.key
 *certificate.pem.crt
 *public.pem.key
 *private.pem.key
-config/configs.yaml
+configs/config.yaml
 .env
 udp-mtqq-bridge
