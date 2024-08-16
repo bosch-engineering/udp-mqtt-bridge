@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.5](https://github.com/BernhardRode/udp_mqtt_bridge/compare/v1.0.4...v1.0.5) (2024-08-16)
+
+
+### Bug Fixes
+
+* add / to the path ([b5cec46](https://github.com/BernhardRode/udp_mqtt_bridge/commit/b5cec466e291a8ca8dae324898d16d1c5c3853c2))
+* change glob ([0493791](https://github.com/BernhardRode/udp_mqtt_bridge/commit/049379140f521701c650c6451bd5c428ff4a9b7a))
+
 ## [1.0.4](https://github.com/BernhardRode/udp_mqtt_bridge/compare/v1.0.3...v1.0.4) (2024-08-16)
 
 
