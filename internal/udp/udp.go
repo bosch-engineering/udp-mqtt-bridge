@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"udp_mqtt_bridge/pkg/utils"
 )
 
 // UDP connection struct
@@ -46,7 +47,7 @@ type Connection struct {
 func (c *Connection) RemoteAddress(ip string, port int) (*net.UDPAddr, error) {
 	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", ip, port))
 	if err != nil {
-		log.Printf("Error resolving UDP address: %v", err)
+		log.Fatalf("Error resolving UDP address: %v", err)
 		return nil, err
 	}
 	return addr, nil
@@ -60,7 +61,7 @@ func (c *Connection) Receive() chan []byte {
 		for {
 			n, _, err := c.conn.ReadFromUDP(buf)
 			if err != nil {
-				log.Printf("Error receiving UDP packet: %v", err)
+				log.Fatalf("Error receiving UDP packet: %v", err)
 				return
 			}
 			ch <- buf[:n]
@@ -69,21 +70,25 @@ func (c *Connection) Receive() chan []byte {
 	return ch
 }
 
-func (c *Connection) Send(data []byte, ip string, port int) error {
+func (c *Connection) Send(ip string, port int, ce utils.CloudEvent) error {
+	// Convert the CloudEvent to a string
+	log.Printf("Sending UDB CloudEvent message: %s", ce.Type)
+	message, err := utils.MarshallCloudEvent(&ce)
+	if err != nil {
+		log.Fatalf("Error marshalling CloudEvent: %v", err)
+		return err
+	}
+
 	addr, err := c.RemoteAddress(ip, port)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Sending UDP packet: %s to %s:%d", string(data), ip, port)
-
-	_, err = c.conn.WriteToUDP(data, addr)
+	_, err = c.conn.WriteToUDP(message, addr)
 	if err != nil {
-		log.Printf("Error sending UDP packet: %v", err)
+		log.Fatalf("Error sending UDP packet: %v", err)
 		return err
 	}
-
-	log.Printf("Sent UDP packet: %s", string(data))
 
 	return nil
 }

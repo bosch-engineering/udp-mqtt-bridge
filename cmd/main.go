@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -19,16 +20,19 @@ const CONFIG_DIRECTORY = "udp-mqtt-bridge"
 
 // Config represents the application configuration.
 type Config struct {
-	UDPTargetIp    string `yaml:"udpTargetIp"`
-	UDPPortIn      int    `yaml:"udpPortIn"`
-	UDPPortOut     int    `yaml:"udpPortOut"`
+	AWSClientId    string `yaml:"awsClientId"`
+	AWSIOTCert     string `yaml:"awsIotCert"`
+	AWSIOTProtocol string `yaml:"awsIotProtocol"`
+	AWSIOTEndpoint string `yaml:"awsIotEndpoint"`
+	AWSIOTKey      string `yaml:"awsIotKey"`
+	AWSIOTPort     int    `yaml:"awsIotPort"`
+	AWSIOTRootCA   string `yaml:"awsIotRootCA"`
 	MQTTTopicIn    string `yaml:"mqttTopicIn"`
 	MQTTTopicOut   string `yaml:"mqttTopicOut"`
-	AWSIOTEndpoint string `yaml:"awsIoTEndpoint"`
-	AWSIOTRootCA   string `yaml:"awsIotRootCA"`
-	AWSIOTCert     string `yaml:"awsIotCert"`
-	AWSIOTKey      string `yaml:"awsIotKey"`
-	AWSClientId    string `yaml:"awsClientId"`
+	UDPIpIn        string `yaml:"udpIpIn"`
+	UDPIpOut       string `yaml:"udpIpOut"`
+	UDPPortIn      int    `yaml:"udpPortIn"`
+	UDPPortOut     int    `yaml:"udpPortOut"`
 }
 
 // loadConfig loads the configuration from a YAML file.
@@ -86,12 +90,14 @@ func main() {
 	}
 
 	// Initialize UDP and MQTT
-	udpConn, err := udp.NewConnection(config.UDPTargetIp, config.UDPPortIn, config.UDPPortOut)
+	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn, config.UDPPortOut)
 	if err != nil {
 		log.Fatalf("Error initializing UDP: %v", err)
 	}
 
-	mqttClient, err := mqtt.NewClient(config.AWSIOTEndpoint, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA)
+	broker := fmt.Sprintf("%s://%s:%d", config.AWSIOTProtocol, config.AWSIOTEndpoint, config.AWSIOTPort)
+
+	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA)
 	if err != nil {
 		log.Fatalf("Error initializing MQTT: %v", err)
 	}
@@ -113,17 +119,24 @@ func main() {
 		for {
 			select {
 			case udpPacket := <-udpConn.Receive():
-				// Handle UDP packets
-				log.Printf("Received UDP packet: %s", string(udpPacket))
-				ce, _ := utils.CreateCloudEvent("ping-test", "ping", string(udpPacket))
-
-				// Process the UDP packet and possibly send it to MQTT
-				mqttClient.Send("topic/out", ce)
-			case mqttMsg := <-mqttClient.Receive():
-				// Handle MQTT messages
-				log.Printf("Received MQTT message: %s", string(mqttMsg))
-				// Process the MQTT message and possibly send it to UDP
-				udpConn.Send([]byte(mqttMsg), config.UDPTargetIp, config.UDPPortOut)
+				// Unmarshal the UDP packet into a CloudEvent
+				ce, err := utils.UnmarshalCloudEvent(udpPacket)
+				if err != nil {
+					log.Printf("Error unmarshalling CloudEvent via UDP: %v", err)
+					continue
+				}
+				log.Printf("Received CloudEvent via UDP: %s", ce.Type)
+				mqttClient.Send(config.MQTTTopicOut, *ce)
+				// case mqttMsg := <-mqttClient.Receive():
+				// 	// Unmarshal the UDP packet into a CloudEvent
+				// 	ce, err := utils.UnmarshalCloudEvent(mqttMsg)
+				// 	if err != nil {
+				// 		log.Printf("Error unmarshalling CloudEvent via MQTT: %v", err)
+				// 		continue
+				// 	}
+				// 	log.Printf("Received CloudEvent via MQTT: %s", ce.Type)
+				// 	// Process the MQTT message and possibly send it to UDP
+				// 	udpConn.Send(config.UDPIpOut, config.UDPPortOut, *ce)
 			}
 		}
 	}()
@@ -133,8 +146,8 @@ func main() {
 		char, key, _ := keyboard.GetKey()
 		if key == keyboard.KeySpace {
 			log.Println("Space bar pressed, sending UDP ping message")
-			udpConn.Send([]byte("ping"), config.UDPTargetIp, config.UDPPortOut)
-			mqttClient.Send(string("ping-test"), nil)
+			// udpConn.Send([]byte("ping"), config.UDPIpOut, config.UDPPortOut)
+			// mqttClient.Send(string("ping-test"), nil)
 		}
 		if char == 'q' || key == keyboard.KeyEsc || (key == keyboard.KeyCtrlC && runtime.GOOS != "windows") {
 			log.Println("Exiting...")

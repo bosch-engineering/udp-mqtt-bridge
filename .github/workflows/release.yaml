@@ -12,12 +12,16 @@ permissions:
   contents: write
   pull-requests: write
 
+env:
+  EXTENSION: ""
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    name: 🛠️ Build
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu, windows, macos]
         arch: [amd64, arm64]
     steps:
       - name: Checkout code
@@ -26,21 +30,66 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: stable
+          cache: false
+
+      - name: Set file extension Windows
+        if: ${{ matrix.os == 'windows' }}
+        run: echo "EXTENSION=.exe" | Out-File -FilePath $env:GITHUB_ENV -Append # no need for -Encoding utf8
+
+      - name: DEBUG Windows
+        if: ${{ matrix.os == 'windows' }}
+        run: echo $env:EXTENSION
+
+      - name: DEBUG Windows
+        if: ${{ matrix.os == 'windows' }}
+        run: echo ${{ env.EXTENSION }}
+
+      - name: DEBUG Unix
+        if: ${{ matrix.os != 'windows' }}
+        run: echo "$EXTENSION"
 
       - name: Build binary
-        run: |
-          go build -o udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }} ./cmd/main.go
+        run: go build -o "out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}" ./cmd/main.go
+
+      - name: DEBUG Windows
+        if: ${{ matrix.os == 'windows' }}
+        run: dir out
+
+      - name: DEBUG Linux
+        if: ${{ matrix.os != 'windows' }}
+        run: ls out
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
-          path: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          path: out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}
 
-  release:
+  configs:
+    name: ⚙️ Configurations
     needs:
       - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: configs
+          path: configs
+          if-no-files-found: "ignore"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: certs
+          path: certs
+          if-no-files-found: "ignore"
+
+  release:
+    name: 🚀 Release
+    needs:
+      - configs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -62,5 +111,4 @@ jobs:
         if: ${{ steps.create_release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} udp-mtqq-bridge-*
-        # gh release upload ${{ steps.create_release.outputs.tag_name }} configs/config.sample.yaml
+        run: gh release upload ${{ steps.create_release.outputs.tag_name }} ./artifacts/*
