@@ -85,8 +85,10 @@ jobs:
         run: ls -l ./artifacts
 
       - name: Upload Release Artifact
+        uses: softprops/action-gh-release@v2
         # if: ${{ steps.create_release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload v1.0.2 artifacts/udp-mtqq-bridge-*
+        with:
+          tag_name: v1.0.2
+          files: artifacts
+        # run: gh release upload v1.0.2 artifacts/udp-mtqq-bridge-*
         # ${{ steps.create_release.outputs.tag_name }}
