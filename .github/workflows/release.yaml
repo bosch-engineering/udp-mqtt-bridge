@@ -42,11 +42,15 @@ jobs:
 
       - name: Copy certs and configs
         if: ${{ matrix.os != 'windows' }}
-        run: cp -r certs configs out
+        run: |
+          cp -r certs out/certs
+          cp -r configs out/configs
 
       - name: Copy certs and configs
         if: ${{ matrix.os == 'windows' }}
-        run: xcopy certs configs out /E /I /Y
+        run: |
+          xcopy certs out\certs /E /I /Y
+          xcopy configs out\configs /E /I /Y
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
