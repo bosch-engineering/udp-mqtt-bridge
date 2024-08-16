@@ -39,6 +39,14 @@ jobs:
         if: ${{ matrix.os == 'windows' }}
         run: echo "EXTENSION=.exe" | Out-File -FilePath $env:GITHUB_ENV -Append # no need for -Encoding utf8
 
+      - name: Copy certs and configs
+        if: ${{ matrix.os != 'windows' }}
+        run: cp -r certs configs out
+
+      - name: Copy certs and configs
+        if: ${{ matrix.os == 'windows' }}
+        run: xcopy certs configs out /E /I /Y
+
       - name: Build binary
         run: go build -o "out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}" ./cmd/main.go
 
