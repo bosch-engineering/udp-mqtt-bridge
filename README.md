@@ -42,6 +42,8 @@ This project is a [brief description of your application]. It is built using [pr
 
 2. Edit the `config.yaml` file and add the necessary configuration parameters for your application.
 
+> **Note:** You can use the `configs/config.sample.yaml` file in the repository as a template.
+
 ## Downloading Certificates
 
 1. Download the certificate files `cert.pem`, `public.key`, and `private.key` that were generated in the previous steps.
