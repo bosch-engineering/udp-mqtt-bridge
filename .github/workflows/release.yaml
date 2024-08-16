@@ -80,6 +80,12 @@ jobs:
         with:
           path: ./artifacts
 
+      - name: Debug /
+        run: ls -l
+
+      - name: Debug artifacts
+        run: ls -l artifacts
+
       - name: Upload Release Artifact
         uses: softprops/action-gh-release@v2
         if: ${{ steps.create_release.outputs.release_created }}
