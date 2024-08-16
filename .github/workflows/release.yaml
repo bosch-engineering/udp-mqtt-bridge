@@ -79,9 +79,6 @@ jobs:
           path: ./artifacts
           merge-multiple: true
 
-      - name: List artifacts
-        run: ls -l ./artifacts
-
       - name: Upload Release Artifact
         uses: softprops/action-gh-release@v2
         # if: ${{ steps.create_release.outputs.release_created }}
@@ -89,5 +86,3 @@ jobs:
           tag_name: v1.0.2 # ${{ steps.create_release.outputs.tag_name }}
           files: |
             artifacts/udp-mtqq-bridge-*
-            artifacts/certs
-            artifacts/configs
