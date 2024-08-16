@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.10](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.9...v1.0.10) (2024-08-16)
+
+
+### Bug Fixes
+
+* remove artifacts/folder_name in zip ([2091eff](https://github.com/BernhardRode/udp-mqtt-bridge/commit/2091eff4789285fe8b09d4d2c5476196bc07adb5))
+* simplify name of executable ([9b16b06](https://github.com/BernhardRode/udp-mqtt-bridge/commit/9b16b0612a1b1eed51bbe71a3b3da422d3baa03f))
+
 ## [1.0.9](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.8...v1.0.9) (2024-08-16)
 
 
