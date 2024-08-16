@@ -72,13 +72,13 @@ jobs:
         with:
           release-type: go
 
-  publish:
-    name: 🚀 Publish
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
+      # publish:
+      #   name: 🚀 Publish
+      #   # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   needs:
+      #     - build
+      #   runs-on: ubuntu-latest
+      #   steps:
       - name: Download artifacts
         # if: ${{ steps.create_release.outputs.release_created }}
         uses: actions/download-artifact@v4
