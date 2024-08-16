@@ -99,5 +99,6 @@ jobs:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
           files: |
             - artifacts/*
+            - README.md
             - CHANGELOG.md
             - LICENSE
