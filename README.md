@@ -16,39 +16,75 @@ This project is a [brief description of your application]. It is built using [pr
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/bernhardrode/udp-mqtt-bridge.git
-   cd udp-mqtt-bridge
+   git clone https://github.com/your-repo/project-name.git
+   cd project-name
    ```
 
 2. Install dependencies:
 
    ```sh
-   go mod download
+   [command to install dependencies, e.g., npm install, pip install -r requirements.txt]
    ```
 
 3. Build the application:
 
    ```sh
-   go build -o udd_mqtt_bridge ./cmd/main.go
+   [command to build the application, e.g., npm run build, make]
    ```
 
-## Creating a Configuration File
+## Running the Application
 
-1. Create a configuration file named `config.yaml`:
+1. Start the application:
 
    ```sh
-   touch config.yaml
+   [command to run the application, e.g., npm start, ./run.sh]
    ```
 
-2. Edit the `config.yaml` file and add the necessary configuration parameters for your application.
+2. Access the application at [URL or port].
 
-> **Note:** You can use the `configs/config.sample.yaml` file in the repository as a template.
+## Setting Up Certificates Using AWS CLI
 
-## Downloading Certificates
+1. Install AWS CLI:
 
-1. Download the certificate files `cert.pem`, `public.key`, and `private.key` that were generated in the previous steps.
+   ```sh
+   sudo apt-get update
+   sudo apt-get install awscli
+   ```
 
-2. Place the downloaded certificate files in the same directory as the `udd_mqtt_bridge` executable.
+2. Configure AWS CLI with your credentials:
+
+   ```sh
+   aws configure
+   ```
+
+   Follow the prompts to enter your AWS Access Key ID, Secret Access Key, region, and output format.
+
+3. Create a new certificate using AWS Certificate Manager (ACM):
+
+   ```sh
+   aws acm request-certificate --domain-name your-domain.com --validation-method DNS
+   ```
+
+   Replace `your-domain.com` with your actual domain name.
+
+4. Validate the certificate:
+
+   - AWS will provide a CNAME record that you need to add to your DNS configuration.
+   - Once the DNS validation is complete, the certificate status will change to "ISSUED".
+
+5. List your certificates to confirm:
+
+   ```sh
+   aws acm list-certificates
+   ```
+
+6. Use the certificate ARN in your application configuration:
+
+   ```sh
+   aws acm get-certificate --certificate-arn arn:aws:acm:region:account-id:certificate/certificate-id
+   ```
+
+   Replace `arn:aws:acm:region:account-id:certificate/certificate-id` with your actual certificate ARN.
 
 ## Creating an IoT Thing and Downloading Certificates Using AWS CLI
 
@@ -60,7 +96,7 @@ This project is a [brief description of your application]. It is built using [pr
    aws iot create-thing --thing-name your-thing-name
    ```
 
-   Replace [`your-thing-name`](command:_github.copilot.openSymbolFromReferences?%5B%22your-thing-name%22%2C%5B%7B%22uri%22%3A%7B%22%24mid%22%3A1%2C%22fsPath%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22external%22%3A%22file%3A%2F%2F%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22path%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22scheme%22%3A%22file%22%7D%2C%22pos%22%3A%7B%22line%22%3A40%2C%22character%22%3A26%7D%7D%5D%5D "Go to definition") with the desired name for your IoT thing.
+   Replace `your-thing-name` with the desired name for your IoT thing.
 
 ### Step 2: Get the AWS IoT Endpoint
 
@@ -88,7 +124,7 @@ This project is a [brief description of your application]. It is built using [pr
    aws iot attach-thing-principal --thing-name your-thing-name --principal arn:aws:iot:region:account-id:cert/certificate-id
    ```
 
-   Replace [`your-thing-name`](command:_github.copilot.openSymbolFromReferences?%5B%22your-thing-name%22%2C%5B%7B%22uri%22%3A%7B%22%24mid%22%3A1%2C%22fsPath%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22external%22%3A%22file%3A%2F%2F%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22path%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22scheme%22%3A%22file%22%7D%2C%22pos%22%3A%7B%22line%22%3A40%2C%22character%22%3A26%7D%7D%5D%5D "Go to definition") with the name of your IoT thing, and `arn:aws:iot:region:account-id:cert/certificate-id` with the ARN of the certificate created in the previous step.
+   Replace `your-thing-name` with the name of your IoT thing, and `arn:aws:iot:region:account-id:cert/certificate-id` with the ARN of the certificate created in the previous step.
 
 ### Step 4: Attach a Policy to the Certificate
 
@@ -98,7 +134,7 @@ This project is a [brief description of your application]. It is built using [pr
    aws iot create-policy --policy-name your-policy-name --policy-document file://policy.json
    ```
 
-   Replace [`your-policy-name`](command:_github.copilot.openSymbolFromReferences?%5B%22your-policy-name%22%2C%5B%7B%22uri%22%3A%7B%22%24mid%22%3A1%2C%22fsPath%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22external%22%3A%22file%3A%2F%2F%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22path%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22scheme%22%3A%22file%22%7D%2C%22pos%22%3A%7B%22line%22%3A40%2C%22character%22%3A26%7D%7D%5D%5D "Go to definition") with the desired name for your policy, and ensure `policy.json` contains the appropriate policy document.
+   Replace `your-policy-name` with the desired name for your policy, and ensure `policy.json` contains the appropriate policy document.
 
 2. Attach the policy to the certificate:
 
@@ -106,7 +142,7 @@ This project is a [brief description of your application]. It is built using [pr
    aws iot attach-policy --policy-name your-policy-name --target arn:aws:iot:region:account-id:cert/certificate-id
    ```
 
-   Replace [`your-policy-name`](command:_github.copilot.openSymbolFromReferences?%5B%22your-policy-name%22%2C%5B%7B%22uri%22%3A%7B%22%24mid%22%3A1%2C%22fsPath%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22external%22%3A%22file%3A%2F%2F%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22path%22%3A%22%2Fhome%2Frbo2abt%2Fdev%2Fbosch-engineering%2Fudp_mqtt_bridge%2FREADME.md%22%2C%22scheme%22%3A%22file%22%7D%2C%22pos%22%3A%7B%22line%22%3A40%2C%22character%22%3A26%7D%7D%5D%5D "Go to definition") with the name of your policy, and `arn:aws:iot:region:account-id:cert/certificate-id` with the ARN of the certificate.
+   Replace `your-policy-name` with the name of your policy, and `arn:aws:iot:region:account-id:cert/certificate-id` with the ARN of the certificate.
 
 ### Step 5: Download the Root CA Certificate
 
@@ -115,11 +151,3 @@ This project is a [brief description of your application]. It is built using [pr
    ```sh
    wget https://www.amazontrust.com/repository/AmazonRootCA1.pem
    ```
-
-## Running the Application
-
-1. Start the application:
-
-```sh
-./udd_mqtt_bridge
-```
