@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.14](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.13...v1.0.14) (2024-08-16)
+
+
+### Bug Fixes
+
+* add README.md to release page ([0283dec](https://github.com/BernhardRode/udp-mqtt-bridge/commit/0283dec2184bc58e8565860d86cf09dcd25d8353))
+* add remove .gitkeep again and change files list ([1d790f2](https://github.com/BernhardRode/udp-mqtt-bridge/commit/1d790f260ef3eb17fe815a8ca6afa49e23249894))
+* regression in copy files ([7dc4a6a](https://github.com/BernhardRode/udp-mqtt-bridge/commit/7dc4a6a50d6d0f1dbeebb2d6f2c706fb68217155))
+
 ## [1.0.13](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.12...v1.0.13) (2024-08-16)
 
 
