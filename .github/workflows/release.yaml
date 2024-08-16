@@ -72,11 +72,18 @@ jobs:
         with:
           release-type: go
 
+  publish:
+    name: 🚀 Publish
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
       - name: Download artifacts
         # if: ${{ steps.create_release.outputs.release_created }}
         uses: actions/download-artifact@v4
         with:
-          path: ./
+          path: ./artifacts
 
       - name: List Workspace
         run: ls -l
@@ -89,6 +96,6 @@ jobs:
         # if: ${{ steps.create_release.outputs.release_created }}
         with:
           tag_name: v1.0.2
-          files: artifacts/*
+          files: artifacts/**/*
         # run: gh release upload v1.0.2 artifacts/udp-mtqq-bridge-*
         # ${{ steps.create_release.outputs.tag_name }}
