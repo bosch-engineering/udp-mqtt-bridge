@@ -53,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}.zip
+          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
           path: out/**/*
 
   release:
@@ -72,13 +72,6 @@ jobs:
         with:
           release-type: go
 
-      # publish:
-      #   name: 🚀 Publish
-      #   # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      #   needs:
-      #     - build
-      #   runs-on: ubuntu-latest
-      #   steps:
       - name: Download artifacts
         # if: ${{ steps.create_release.outputs.release_created }}
         uses: actions/download-artifact@v4
@@ -93,10 +86,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         # if: ${{ steps.create_release.outputs.release_created }}
         with:
-          tag_name: v1.0.2
+          tag_name: v1.0.2 # ${{ steps.create_release.outputs.tag_name }}
           files: |
             artifacts/udp-mtqq-bridge-*
             artifacts/certs
             artifacts/configs
-        # run: gh release upload v1.0.2 artifacts/udp-mtqq-bridge-*
-        # ${{ steps.create_release.outputs.tag_name }}
