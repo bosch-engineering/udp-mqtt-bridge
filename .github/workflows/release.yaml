@@ -81,7 +81,16 @@ jobs:
           path: ./artifacts
 
       - name: Debug artifacts recursive
-        run: ls -lisR
+        run: ls -lisR artifacts
+
+      - name: Zip artifacts
+        if: ${{ steps.create_release.outputs.release_created }}
+        run: |
+          find artifacts -mindepth 1 -maxdepth 1 -type d -exec zip -r {}.zip {} \;
+          find artifacts -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;
+
+      - name: Debug artifacts recursive
+        run: ls -lisR artifacts
 
       - name: Upload Release Artifact
         uses: softprops/action-gh-release@v2
