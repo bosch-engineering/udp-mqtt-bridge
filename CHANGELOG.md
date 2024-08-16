@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.6...v1.0.7) (2024-08-16)
+
+
+### Bug Fixes
+
+* remove empty line ([fb874a9](https://github.com/BernhardRode/udp-mqtt-bridge/commit/fb874a974077569457a16150d670df458b76f199))
+
 ## [1.0.6](https://github.com/BernhardRode/udp_mqtt_bridge/compare/v1.0.5...v1.0.6) (2024-08-16)
 
 
