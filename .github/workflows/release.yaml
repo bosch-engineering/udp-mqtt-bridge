@@ -75,24 +75,20 @@ jobs:
           release-type: go
 
       - name: Download artifacts
+        if: ${{ steps.create_release.outputs.release_created }}
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
-      - name: Debug artifacts recursive
-        run: ls -lisR
-
       - name: Zip artifacts
+        if: ${{ steps.create_release.outputs.release_created }}
         run: |
           find artifacts -mindepth 1 -maxdepth 1 -type d -exec zip -r {}.zip {} \;
           find artifacts -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} \;
 
-      - name: Debug artifacts recursive
-        run: ls -lisR artifacts
-
       - name: Upload Release Artifact
-        uses: softprops/action-gh-release@v2
         if: ${{ steps.create_release.outputs.release_created }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
           files: artifacts/*
