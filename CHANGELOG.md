@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/BernhardRode/udp_mqtt_bridge/compare/v1.0.3...v1.0.4) (2024-08-16)
+
+
+### Bug Fixes
+
+* ignore config.yaml ([aab0c4a](https://github.com/BernhardRode/udp_mqtt_bridge/commit/aab0c4a4b63831cc4f3fe1c948cca45fee3ee2d3))
+
 ## [1.0.3](https://github.com/BernhardRode/udp_mqtt_bridge/compare/v1.0.2...v1.0.3) (2024-08-16)
 
 
