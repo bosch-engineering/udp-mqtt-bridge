@@ -68,6 +68,12 @@ jobs:
         with:
           path: ./artifacts
 
+      - name: List Workspace
+        run: ls -l
+
+      - name: List artifacts
+        run: ls -l ./artifacts
+
       - name: Upload Release Artifact
         # if: ${{ steps.create_release.outputs.release_created }}
         env:
