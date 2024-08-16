@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.13](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.12...v1.0.13) (2024-08-16)
+
+
+### Bug Fixes
+
+* copy file ([45e4d87](https://github.com/BernhardRode/udp-mqtt-bridge/commit/45e4d870b45b7d47428e8da062ce7a6f33d4b0dc))
+* rollback delete .gitkeep ([e45bcb7](https://github.com/BernhardRode/udp-mqtt-bridge/commit/e45bcb710bedc783811cd4abef604af075014cc5))
+* windows build ([31ef0d1](https://github.com/BernhardRode/udp-mqtt-bridge/commit/31ef0d173b0731b682e86e5dd24011a3e9a3996d))
+* xcopy remove / ([4d6aaa2](https://github.com/BernhardRode/udp-mqtt-bridge/commit/4d6aaa2238079c699e8e21a8cbae005d5f2f3df7))
+* xcopy remove flag for file ([a89fb90](https://github.com/BernhardRode/udp-mqtt-bridge/commit/a89fb9019583f810266c8d5c369e8b26f87c32b9))
+
 ## [1.0.12](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.11...v1.0.12) (2024-08-16)
 
 
