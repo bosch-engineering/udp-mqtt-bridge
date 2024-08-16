@@ -55,8 +55,8 @@ jobs:
           xcopy certs out\certs /E /I /Y
           xcopy configs out\configs /E /I /Y
           xcopy LICENSE out/LICENSE /E /I /Y
-          xcopy CHANGELOG.md out/CHANGELOG.md /I /Y
-          xcopy README.md out/README.md /I /Y
+          xcopy CHANGELOG.md out /I /Y
+          xcopy README.md out /I /Y
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
