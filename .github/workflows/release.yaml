@@ -79,7 +79,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
-          merge-multiple: true
 
       - name: Upload Release Artifact
         uses: softprops/action-gh-release@v2
