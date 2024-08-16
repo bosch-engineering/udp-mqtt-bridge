@@ -91,5 +91,4 @@ jobs:
         if: ${{ steps.create_release.outputs.release_created }}
         with:
           tag_name: ${{ steps.create_release.outputs.tag_name }}
-          files: |
-            artifacts/*
+          files: artifacts/*
