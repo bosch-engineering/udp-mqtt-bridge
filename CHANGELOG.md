@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.8](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.7...v1.0.8) (2024-08-16)
+
+
+### Bug Fixes
+
+* update debug ([6ebc2b6](https://github.com/BernhardRode/udp-mqtt-bridge/commit/6ebc2b6af5b8b40b7b5dc856bec3dff5a5498ab2))
+
 ## [1.0.7](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.6...v1.0.7) (2024-08-16)
 
 
