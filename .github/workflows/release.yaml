@@ -40,11 +40,23 @@ jobs:
       - name: Build binary
         run: go build -o "out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}" ./cmd/main.go
 
+      - name: Copy certs and configs
+        if: ${{ matrix.os != 'windows' }}
+        run: |
+          cp -r certs out/certs
+          cp -r configs out/configs
+
+      - name: Copy certs and configs
+        if: ${{ matrix.os == 'windows' }}
+        run: |
+          xcopy certs out\certs /E /I /Y
+          xcopy configs out\configs /E /I /Y
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
-          path: out/udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}${{ env.EXTENSION }}
+          path: out
 
   release:
     name: 🚀 Release
@@ -69,7 +81,9 @@ jobs:
           path: ./artifacts
 
       - name: Upload Release Artifact
+        uses: softprops/action-gh-release@v2
         if: ${{ steps.create_release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.create_release.outputs.tag_name }} ./artifacts/*
+        with:
+          tag_name: ${{ steps.create_release.outputs.tag_name }}
+          files: |
+            artifacts/udp-mtqq-bridge-*
