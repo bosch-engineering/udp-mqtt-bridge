@@ -1,13 +1,18 @@
-awsClientId: "udp-mqtt-bridge"
-awsIotCert: "certs/cert.pem"
-awsIotEndpoint: "*************-ats.iot.eu-central-1.amazonaws.com"
-awsIotKey: "certs/private.key"
-awsIotPort: 8883
-awsIotProtocol: "ssl"
-awsIotRootCA: "certs/AmazonRootCA1.pem"
-mqttTopicIn: "topic/in"
-mqttTopicOut: "topic/out"
-udpIpIn: "0.0.0.0"
-udpIpOut: "255.255.255.255"
-udpPortIn: 5000
-udpPortOut: 5000
+mqtt:
+    endpoint: "*************-ats.iot.eu-central-1.amazonaws.com"
+    port: 8883
+    clientId: "udp-mqtt-bridge"
+    certFile: "certs/cert.pem"
+    keyFile: "certs/private.key"
+    protocol: "ssl"
+    rootCaFile: "certs/AmazonRootCA1.pem"
+    topics:
+        in: "topic/in"
+        out: "topic/out"
+udp:
+    in:
+        ip: "0.0.0.0"
+        port: 5000
+    out:
+        ip: "255.255.255.255"
+        port: 6000

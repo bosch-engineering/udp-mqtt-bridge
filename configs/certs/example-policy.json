@@ -9,8 +9,8 @@
         "iot:PublishRetain"
       ],
       "Resource": [
-        "arn:aws:iot:eu-central-1:236951204728:topic/in",
-        "arn:aws:iot:eu-central-1:236951204728:topic/out"
+        "arn:aws:iot:::topic/in",
+        "arn:aws:iot:::topic/out"
       ]
     },
     {
@@ -19,8 +19,8 @@
         "iot:Subscribe"
       ],
       "Resource": [
-        "arn:aws:iot:eu-central-1:236951204728:topicfilter/in",
-        "arn:aws:iot:eu-central-1:236951204728:topicfilter/out"
+        "arn:aws:iot:::topicfilter/in",
+        "arn:aws:iot:::topicfilter/out"
       ]
     },
     {
@@ -29,7 +29,7 @@
         "iot:Connect"
       ],
       "Resource": [
-        "arn:aws:iot:eu-central-1:236951204728:client/*"
+        "arn:aws:iot:::client/*"
       ]
     }
   ]
