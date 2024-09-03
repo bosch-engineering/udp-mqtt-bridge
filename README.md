@@ -82,3 +82,9 @@ This repository contains a bidirectional UDP to MQTT bridge. It seamlessly trans
    - `AmazonRootCA1.pem` -> `root.pem`
 
 3. Update the `config.yaml` file with the appropriate certificate and key filenames.
+
+### Send demo data into the bridge
+
+```sh
+echo "{\"specversion\":\"1.0\",\"id\":\"$(uuidgen)\",\"source\":\"https://bosch-engineering.com\",\"type\":\"com.bosch-engineering.ping\",\"datacontenttype\":\"application/json\",\"data\":{\"message\":\"ping\"}}" | socat - UDP-DATAGRAM:127.0.0.1:5001
+```

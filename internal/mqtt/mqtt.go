@@ -1,18 +1,19 @@
 package mqtt
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/binary"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"udp_mqtt_bridge/pkg/utils"
 
 	"github.com/eclipse/paho.golang/autopaho"
 	"github.com/eclipse/paho.golang/paho"
+
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
 // MQTTClient struct
@@ -22,7 +23,7 @@ type MQTTClient struct {
 }
 
 // NewClient creates a new MQTT client to connect to AWS IoT Core.
-func NewClient(broker string, clientID string, certFile string, keyFile string, caFile string) (*MQTTClient, error) {
+func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTTClient, error) {
 	// Load the certificates
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
@@ -42,6 +43,8 @@ func NewClient(broker string, clientID string, certFile string, keyFile string, 
 		return nil, fmt.Errorf("failed to parse broker URL: %v", err)
 	}
 
+	receiveChan := make(chan []byte)
+
 	ctx := context.Background()
 	cliCfg := autopaho.ClientConfig{
 		ServerUrls:                    []*url.URL{serverURL},
@@ -53,10 +56,22 @@ func NewClient(broker string, clientID string, certFile string, keyFile string, 
 			RootCAs:      caCertPool,
 		},
 		OnConnectionUp: func(cm *autopaho.ConnectionManager, connAck *paho.Connack) {
-			fmt.Println("mqtt connection up")
+			log.Println("AWS IoT Core MQTT connection up.")
+
+			_, err := cm.Subscribe(context.Background(), &paho.Subscribe{
+				Subscriptions: []paho.SubscribeOptions{
+					{
+						Topic: topic,
+						QoS:   0,
+					},
+				},
+			})
+			if err != nil {
+				log.Printf("failed to subscribe to topic: %v", err)
+			}
 		},
 		OnConnectError: func(err error) {
-			fmt.Printf("error whilst attempting connection: %s\n", err)
+			log.Printf("AWS IoT Core MQTT error whilst attempting connection: %s\n", err)
 			// Close Process
 			os.Exit(1)
 		},
@@ -64,19 +79,15 @@ func NewClient(broker string, clientID string, certFile string, keyFile string, 
 			ClientID: clientID,
 			OnPublishReceived: []func(paho.PublishReceived) (bool, error){
 				func(pr paho.PublishReceived) (bool, error) {
-					msgNo, err := binary.ReadUvarint(bytes.NewReader(pr.Packet.Payload))
-					if err != nil {
-						panic(err)
-					}
-					fmt.Printf("Received message: %d\n", msgNo)
+					receiveChan <- []byte(string(pr.Packet.Payload))
 					return true, nil
 				}},
-			OnClientError: func(err error) { fmt.Printf("client error: %s\n", err) },
+			OnClientError: func(err error) { log.Printf("client error: %s\n", err) },
 			OnServerDisconnect: func(d *paho.Disconnect) {
 				if d.Properties != nil {
-					fmt.Printf("server requested disconnect: %s\n", d.Properties.ReasonString)
+					log.Printf("server requested disconnect: %s\n", d.Properties.ReasonString)
 				} else {
-					fmt.Printf("server requested disconnect; reason code: %d\n", d.ReasonCode)
+					log.Printf("server requested disconnect; reason code: %d\n", d.ReasonCode)
 				}
 			},
 		},
@@ -89,7 +100,7 @@ func NewClient(broker string, clientID string, certFile string, keyFile string, 
 
 	mqttClient := &MQTTClient{
 		client:      client,
-		receiveChan: make(chan []byte),
+		receiveChan: receiveChan,
 	}
 
 	return mqttClient, nil
@@ -106,12 +117,23 @@ func (c *MQTTClient) Publish(topic string, qos byte, retained bool, payload inte
 	return err
 }
 
-// Subscribe subscribes to the specified topic and handles incoming messages.
-func (c *MQTTClient) Subscribe(topic string, qos byte, callback func(paho.PublishReceived) (bool, error)) error {
+// Subscribe subscribes to the specified topic and pushes messages into receiveChan.
+func (c *MQTTClient) Subscribe(topic string) error {
 	_, err := c.client.Subscribe(context.Background(), &paho.Subscribe{
 		Subscriptions: []paho.SubscribeOptions{
-			{Topic: topic, QoS: qos},
+			{
+				Topic: topic,
+				QoS:   0,
+			},
 		},
+	})
+	return err
+}
+
+// Unsubscribe unsubscribes from the specified topic.
+func (c *MQTTClient) Unsubscribe(topic string) error {
+	_, err := c.client.Unsubscribe(context.Background(), &paho.Unsubscribe{
+		Topics: []string{topic},
 	})
 	return err
 }
@@ -122,12 +144,22 @@ func (c *MQTTClient) Disconnect() error {
 }
 
 // Send sends a message to the specified topic.
-func (c *MQTTClient) Send(topic string, ce utils.CloudEvent) error {
-	payload, err := utils.MarshallCloudEvent(&ce)
+func (c *MQTTClient) Send(topic string, ce cloudevents.Event) error {
+	payload, err := utils.MarshallCloudEvent(ce)
 	if err != nil {
 		return err
 	}
 	return c.Publish(topic, 1, false, payload)
+}
+
+// Send Message as Cloudevent
+func (c *MQTTClient) SendMessage(topic string, data string) error {
+	// Create the CloudEvent JSON string
+	ce, err := utils.CreateCloudEvent("com.bosch-engineering.message", "https://bosch-engineering.com", data)
+	if err != nil {
+		return fmt.Errorf("failed to create CloudEvent: %v", err)
+	}
+	return c.Send(topic, ce)
 }
 
 // Receive returns the receive channel for MQTT messages.

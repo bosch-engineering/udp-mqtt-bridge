@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 	"udp_mqtt_bridge/internal/mqtt"
 	"udp_mqtt_bridge/internal/udp"
 	"udp_mqtt_bridge/pkg/utils"
@@ -77,6 +78,9 @@ func configPath() (string, error) {
 }
 
 func main() {
+	// Map to store timestamps for CloudEvent IDs
+	eventTimestamps := make(map[string]time.Time)
+
 	// Get configuration file path
 	configPath, err := configPath()
 	if err != nil {
@@ -90,19 +94,17 @@ func main() {
 	}
 
 	// Initialize UDP and MQTT
-	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn, config.UDPPortOut)
+	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn)
 	if err != nil {
 		log.Fatalf("Error initializing UDP: %v", err)
 	}
+	log.Printf("Listening on UDP port %d", config.UDPPortIn)
 
 	broker := fmt.Sprintf("%s://%s:%d", config.AWSIOTProtocol, config.AWSIOTEndpoint, config.AWSIOTPort)
-
-	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA)
+	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA, config.MQTTTopicIn)
 	if err != nil {
 		log.Fatalf("Error initializing MQTT: %v", err)
 	}
-
-	log.Printf("Listening on UDP port %d", config.UDPPortIn)
 
 	// Start capturing keyboard input
 	if err := keyboard.Open(); err != nil {
@@ -125,18 +127,31 @@ func main() {
 					log.Printf("Error unmarshalling CloudEvent via UDP: %v", err)
 					continue
 				}
-				log.Printf("Received CloudEvent via UDP: %s", ce.Type)
-				mqttClient.Send(config.MQTTTopicOut, *ce)
-				// case mqttMsg := <-mqttClient.Receive():
-				// 	// Unmarshal the UDP packet into a CloudEvent
-				// 	ce, err := utils.UnmarshalCloudEvent(mqttMsg)
-				// 	if err != nil {
-				// 		log.Printf("Error unmarshalling CloudEvent via MQTT: %v", err)
-				// 		continue
-				// 	}
-				// 	log.Printf("Received CloudEvent via MQTT: %s", ce.Type)
-				// 	// Process the MQTT message and possibly send it to UDP
-				// 	udpConn.Send(config.UDPIpOut, config.UDPPortOut, *ce)
+				log.Printf("Forwarding CloudEvent from UDP to MQTT: %s %s", ce.ID(), ce.Type())
+
+				mqttClient.Send(config.MQTTTopicOut, ce)
+
+			case mqttMsg := <-mqttClient.Receive():
+				log.Printf("Received MQTT message: %s", string(mqttMsg))
+				// Unmarshal the UDP packet into a CloudEvent
+				ce, err := utils.UnmarshalCloudEvent(mqttMsg)
+				if err != nil {
+					log.Printf("Error unmarshalling CloudEvent via MQTT: %v", err)
+					continue
+				}
+				log.Printf("Received CloudEvent via MQTT: %s %s", ce.ID(), ce.Type())
+
+				// Calculate and log the duration
+				if startTime, ok := eventTimestamps[ce.ID()]; ok {
+					duration := time.Since(startTime)
+					log.Printf("Duration for CloudEvent ID: %s %s - %v", ce.ID(), ce.Type(), duration)
+					// Optionally, remove the entry from the map if no longer needed
+					delete(eventTimestamps, ce.ID())
+				}
+
+				log.Printf("Forwarding CloudEvent from MQTT to UDP: %s %s", ce.ID(), ce.Type())
+				// Process the MQTT message and possibly send it to UDP
+				udpConn.Send(config.UDPIpOut, config.UDPPortOut, ce)
 			}
 		}
 	}()
@@ -145,9 +160,14 @@ func main() {
 	for {
 		char, key, _ := keyboard.GetKey()
 		if key == keyboard.KeySpace {
-			log.Println("Space bar pressed, sending UDP ping message")
-			// udpConn.Send([]byte("ping"), config.UDPIpOut, config.UDPPortOut)
-			// mqttClient.Send(string("ping-test"), nil)
+			ce, err := utils.CreateCloudEvent("com.bosch-engineering.ping", "https://bosch-engineering.com", "ping")
+			if err != nil {
+				return
+			}
+			log.Println("Space bar pressed, sending ping package via UDP...")
+
+			udpConn.Send(config.UDPIpOut, config.UDPPortOut, ce)
+			eventTimestamps[ce.ID()] = time.Now()
 		}
 		if char == 'q' || key == keyboard.KeyEsc || (key == keyboard.KeyCtrlC && runtime.GOOS != "windows") {
 			log.Println("Exiting...")
