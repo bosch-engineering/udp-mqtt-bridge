@@ -14,7 +14,9 @@ import (
 
 	"github.com/eiannone/keyboard"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"	
+	
+	"github.com/gookit/slog"
 )
 
 const CONFIG_DIRECTORY = "udp-mqtt-bridge"
@@ -38,13 +40,14 @@ type Config struct {
 
 // loadConfig loads the configuration from a YAML file.
 func loadConfig(filename string) (*Config, error) {
+	slog.Infof("Loading configuration from %s", filename)
+
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	log.Printf("Loading configuration from %s", filename)
 
 	// Reset the file pointer to the beginning
 	file.Seek(0, io.SeekStart)
@@ -55,7 +58,7 @@ func loadConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 
-	log.Printf("Configuration loaded: %+v", config)
+	slog.Debugf("Configuration loaded: %+v", config)
 
 	return &config, nil
 }
@@ -64,7 +67,7 @@ func configPath() (string, error) {
 	currentDir, _ := os.Getwd()
 	localConfigPath := filepath.Join(currentDir, "configs")
 	if _, err := os.Stat(localConfigPath); err == nil {
-		log.Printf("Using local configuration directory: %s", localConfigPath)
+		slog.Debugf("Using local configuration directory: %s", localConfigPath)
 		return localConfigPath, nil
 	}
 
@@ -73,7 +76,7 @@ func configPath() (string, error) {
 		return "", err
 	}
 	userConfigDir = filepath.Join(userConfigDir, CONFIG_DIRECTORY)
-	log.Printf("Using user configuration directory: %s", userConfigDir)
+	slog.Debugf("Using user configuration directory: %s", userConfigDir)
 	return userConfigDir, nil
 }
 
@@ -84,34 +87,34 @@ func main() {
 	// Get configuration file path
 	configPath, err := configPath()
 	if err != nil {
-		log.Fatalf("Error getting configuration file path: %v", err)
+		slog.error("Error getting configuration file path: %v", err)
 	}
 
 	// Load configuration (e.g., from config.yaml)
 	config, err := loadConfig(filepath.Join(configPath, "config.yaml"))
 	if err != nil {
-		log.Fatalf("Error loading configuration: %v", err)
+		slog.error("Error loading configuration: %v", err)
 	}
-
++
 	// Initialize UDP and MQTT
 	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn)
 	if err != nil {
-		log.Fatalf("Error initializing UDP: %v", err)
+		slog.error("Error initializing UDP: %v", err)
 	}
-	log.Printf("Listening on UDP port %d", config.UDPPortIn)
+	slog.Debugf("Listening on UDP port %d", config.UDPPortIn)
 
 	broker := fmt.Sprintf("%s://%s:%d", config.AWSIOTProtocol, config.AWSIOTEndpoint, config.AWSIOTPort)
 	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA, config.MQTTTopicIn)
 	if err != nil {
-		log.Fatalf("Error initializing MQTT: %v", err)
+		slog.error("Error initializing MQTT: %v", err)
 	}
 
 	// Start capturing keyboard input
 	if err := keyboard.Open(); err != nil {
-		log.Fatalf("Error opening keyboard: %v", err)
+		slog.error("Error opening keyboard: %v", err)
 	}
 
-	log.Printf("")
+	slog.Debugf("")
 	log.Println("Press 'space' to send a send a ping.")
 	log.Println("Press 'q', 'esc' or 'ctrl+c' to quit.")
 	defer keyboard.Close()
@@ -124,32 +127,32 @@ func main() {
 				// Unmarshal the UDP packet into a CloudEvent
 				ce, err := utils.UnmarshalCloudEvent(udpPacket)
 				if err != nil {
-					log.Printf("Error unmarshalling CloudEvent via UDP: %v", err)
+					slog.Debugf("Error unmarshalling CloudEvent via UDP: %v", err)
 					continue
 				}
-				log.Printf("Forwarding CloudEvent from UDP to MQTT: %s %s", ce.ID(), ce.Type())
+				slog.Debugf("Forwarding CloudEvent from UDP to MQTT: %s %s", ce.ID(), ce.Type())
 
 				mqttClient.Send(config.MQTTTopicOut, ce)
 
 			case mqttMsg := <-mqttClient.Receive():
-				log.Printf("Received MQTT message: %s", string(mqttMsg))
+				slog.Debugf("Received MQTT message: %s", string(mqttMsg))
 				// Unmarshal the UDP packet into a CloudEvent
 				ce, err := utils.UnmarshalCloudEvent(mqttMsg)
 				if err != nil {
-					log.Printf("Error unmarshalling CloudEvent via MQTT: %v", err)
+					slog.Debugf("Error unmarshalling CloudEvent via MQTT: %v", err)
 					continue
 				}
-				log.Printf("Received CloudEvent via MQTT: %s %s", ce.ID(), ce.Type())
+				slog.Debugf("Received CloudEvent via MQTT: %s %s", ce.ID(), ce.Type())
 
 				// Calculate and log the duration
 				if startTime, ok := eventTimestamps[ce.ID()]; ok {
 					duration := time.Since(startTime)
-					log.Printf("Duration for CloudEvent ID: %s %s - %v", ce.ID(), ce.Type(), duration)
+					slog.Debugf("Duration for CloudEvent ID: %s %s - %v", ce.ID(), ce.Type(), duration)
 					// Optionally, remove the entry from the map if no longer needed
 					delete(eventTimestamps, ce.ID())
 				}
 
-				log.Printf("Forwarding CloudEvent from MQTT to UDP: %s %s", ce.ID(), ce.Type())
+				slog.Debugf("Forwarding CloudEvent from MQTT to UDP: %s %s", ce.ID(), ce.Type())
 				// Process the MQTT message and possibly send it to UDP
 				udpConn.Send(config.UDPIpOut, config.UDPPortOut, ce)
 			}
