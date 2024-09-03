@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"udp_mqtt_bridge/pkg/utils"
@@ -14,6 +13,8 @@ import (
 	"github.com/eclipse/paho.golang/paho"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+
+	"github.com/gookit/slog"
 )
 
 // MQTTClient struct
@@ -56,7 +57,7 @@ func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTT
 			RootCAs:      caCertPool,
 		},
 		OnConnectionUp: func(cm *autopaho.ConnectionManager, connAck *paho.Connack) {
-			log.Println("AWS IoT Core MQTT connection up.")
+			slog.Info("MQTT connection up.")
 
 			_, err := cm.Subscribe(context.Background(), &paho.Subscribe{
 				Subscriptions: []paho.SubscribeOptions{
@@ -67,11 +68,11 @@ func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTT
 				},
 			})
 			if err != nil {
-				log.Printf("failed to subscribe to topic: %v", err)
+				slog.Errorf("failed to subscribe to topic: %v", err)
 			}
 		},
 		OnConnectError: func(err error) {
-			log.Printf("AWS IoT Core MQTT error whilst attempting connection: %s\n", err)
+			slog.Errorf("MQTT error whilst attempting connection: %s\n", err)
 			// Close Process
 			os.Exit(1)
 		},
@@ -82,12 +83,14 @@ func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTT
 					receiveChan <- []byte(string(pr.Packet.Payload))
 					return true, nil
 				}},
-			OnClientError: func(err error) { log.Printf("client error: %s\n", err) },
+			OnClientError: func(err error) { 
+				slog.Errorf("client error: %s\n", err) 
+			},
 			OnServerDisconnect: func(d *paho.Disconnect) {
 				if d.Properties != nil {
-					log.Printf("server requested disconnect: %s\n", d.Properties.ReasonString)
+					slog.Errorf("server requested disconnect: %s\n", d.Properties.ReasonString)
 				} else {
-					log.Printf("server requested disconnect; reason code: %d\n", d.ReasonCode)
+					slog.Errorf("server requested disconnect; reason code: %d\n", d.ReasonCode)
 				}
 			},
 		},

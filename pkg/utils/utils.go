@@ -5,15 +5,17 @@ import (
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/uuid"
+	"github.com/gookit/slog"
 )
 
 // CreateCloudEvent creates a CloudEvent JSON.
-func CreateCloudEvent(eventType string, source string, data string) (cloudevents.Event, error) {
+func CreateCloudEvent(t string, source string, data string) (cloudevents.Event, error) {
+	slog.Debugf("Creating CloudEvent: %s", t)
 	ce := cloudevents.NewEvent()
 	id := uuid.New()
 	ce.SetID(id.String())
 	ce.SetSource(source)
-	ce.SetType(eventType)
+	ce.SetType(t)
 	ce.SetData(cloudevents.ApplicationJSON, data)
 	return ce, nil
 }
