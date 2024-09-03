@@ -4,12 +4,19 @@
     {
       "Effect": "Allow",
       "Action": [
+        "iot:Receive"
+      ],
+      "Resource": [
+        "arn:aws:iot:::topic/in"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "iot:Publish",
-        "iot:Receive",
         "iot:PublishRetain"
       ],
       "Resource": [
-        "arn:aws:iot:::topic/in",
         "arn:aws:iot:::topic/out"
       ]
     },
