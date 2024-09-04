@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
-	"udp_mqtt_bridge/internal/mqtt"
-	"udp_mqtt_bridge/internal/udp"
+	"udp_mqtt_bridge/pkg/mqtt"
+	"udp_mqtt_bridge/pkg/udp"
 	"udp_mqtt_bridge/pkg/utils"
 
 	"github.com/eiannone/keyboard"
 
-	"gopkg.in/yaml.v2"	
-	
+	"gopkg.in/yaml.v2"
+
 	"github.com/gookit/slog"
 )
 
@@ -47,7 +47,6 @@ func loadConfig(filename string) (*Config, error) {
 		return nil, err
 	}
 	defer file.Close()
-
 
 	// Reset the file pointer to the beginning
 	file.Seek(0, io.SeekStart)
@@ -87,31 +86,31 @@ func main() {
 	// Get configuration file path
 	configPath, err := configPath()
 	if err != nil {
-		slog.error("Error getting configuration file path: %v", err)
+		slog.Errorf("Error getting configuration file path: %v", err)
 	}
 
 	// Load configuration (e.g., from config.yaml)
 	config, err := loadConfig(filepath.Join(configPath, "config.yaml"))
 	if err != nil {
-		slog.error("Error loading configuration: %v", err)
+		slog.Errorf("Error loading configuration: %v", err)
 	}
-+
+
 	// Initialize UDP and MQTT
 	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn)
 	if err != nil {
-		slog.error("Error initializing UDP: %v", err)
+		slog.Errorf("Error initializing UDP: %v", err)
 	}
 	slog.Debugf("Listening on UDP port %d", config.UDPPortIn)
 
 	broker := fmt.Sprintf("%s://%s:%d", config.AWSIOTProtocol, config.AWSIOTEndpoint, config.AWSIOTPort)
 	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA, config.MQTTTopicIn)
 	if err != nil {
-		slog.error("Error initializing MQTT: %v", err)
+		slog.Errorf("Error initializing MQTT: %v", err)
 	}
 
 	// Start capturing keyboard input
 	if err := keyboard.Open(); err != nil {
-		slog.error("Error opening keyboard: %v", err)
+		slog.Errorf("Error opening keyboard: %v", err)
 	}
 
 	slog.Debugf("")
