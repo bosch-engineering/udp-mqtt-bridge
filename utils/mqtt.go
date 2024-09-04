@@ -1,4 +1,4 @@
-package mqtt
+package utils
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"udp_mqtt_bridge/pkg/utils"
 
 	"github.com/eclipse/paho.golang/autopaho"
 	"github.com/eclipse/paho.golang/paho"
@@ -24,10 +23,11 @@ type MQTTClient struct {
 }
 
 // NewClient creates a new MQTT client to connect to AWS IoT Core.
-func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTTClient, error) {
+func NewClient(broker, clientId, certFile, keyFile, caFile, topic string) (*MQTTClient, error) {
 	// Load the certificates
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
+		slog.Errorf("failed to load key pair: %s, %s", certFile, keyFile)
 		return nil, fmt.Errorf("failed to load key pair: %v", err)
 	}
 
@@ -77,14 +77,14 @@ func NewClient(broker, clientID, certFile, keyFile, caFile, topic string) (*MQTT
 			os.Exit(1)
 		},
 		ClientConfig: paho.ClientConfig{
-			ClientID: clientID,
+			ClientID: clientId,
 			OnPublishReceived: []func(paho.PublishReceived) (bool, error){
 				func(pr paho.PublishReceived) (bool, error) {
 					receiveChan <- []byte(string(pr.Packet.Payload))
 					return true, nil
 				}},
-			OnClientError: func(err error) { 
-				slog.Errorf("client error: %s\n", err) 
+			OnClientError: func(err error) {
+				slog.Errorf("client error: %s\n", err)
 			},
 			OnServerDisconnect: func(d *paho.Disconnect) {
 				if d.Properties != nil {
@@ -148,7 +148,7 @@ func (c *MQTTClient) Disconnect() error {
 
 // Send sends a message to the specified topic.
 func (c *MQTTClient) Send(topic string, ce cloudevents.Event) error {
-	payload, err := utils.MarshallCloudEvent(ce)
+	payload, err := MarshallCloudEvent(ce)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (c *MQTTClient) Send(topic string, ce cloudevents.Event) error {
 // Send Message as Cloudevent
 func (c *MQTTClient) SendMessage(topic string, data string) error {
 	// Create the CloudEvent JSON string
-	ce, err := utils.CreateCloudEvent("com.bosch-engineering.message", "https://bosch-engineering.com", data)
+	ce, err := CreateCloudEvent("com.bosch-engineering.message", "https://bosch-engineering.com", data)
 	if err != nil {
 		return fmt.Errorf("failed to create CloudEvent: %v", err)
 	}

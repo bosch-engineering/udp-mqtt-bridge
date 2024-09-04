@@ -1,114 +1,35 @@
 package main
 
 import (
-	"udp_mqtt_bridge/pkg/mqtt"
-	"udp_mqtt_bridge/pkg/udp"
-	"udp_mqtt_bridge/pkg/utils"
-
 	"fmt"
-	"io"
-	"log"
-	"os"
-	"path/filepath"
 	"runtime"
 	"time"
+	"udp_mqtt_bridge/utils"
 
 	"github.com/eiannone/keyboard"
 	"github.com/gookit/slog"
-	"gopkg.in/yaml.v2"
 )
 
-const APP_NAME = "udp-mqtt-bridge"
-
-// Config represents the application configuration.
-type Config struct {
-	AWSClientId    string `yaml:"awsClientId"`
-	AWSIOTCert     string `yaml:"awsIotCert"`
-	AWSIOTProtocol string `yaml:"awsIotProtocol"`
-	AWSIOTEndpoint string `yaml:"awsIotEndpoint"`
-	AWSIOTKey      string `yaml:"awsIotKey"`
-	AWSIOTPort     int    `yaml:"awsIotPort"`
-	AWSIOTRootCA   string `yaml:"awsIotRootCA"`
-	MQTTTopicIn    string `yaml:"mqttTopicIn"`
-	MQTTTopicOut   string `yaml:"mqttTopicOut"`
-	UDPIpIn        string `yaml:"udpIpIn"`
-	UDPIpOut       string `yaml:"udpIpOut"`
-	UDPPortIn      int    `yaml:"udpPortIn"`
-	UDPPortOut     int    `yaml:"udpPortOut"`
-}
-
-// loadConfig loads the configuration from a YAML file.
-func loadConfig(filename string) (*Config, error) {
-	slog.Infof("Loading configuration from %s", filename)
-
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// Reset the file pointer to the beginning
-	file.Seek(0, io.SeekStart)
-
-	var config Config
-	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
-		return nil, err
-	}
-
-	slog.Debugf("Configuration loaded: %+v", config)
-
-	return &config, nil
-}
-
-func configPath() (string, error) {
-	currentDir, _ := os.Getwd()
-	localConfigPath := filepath.Join(currentDir, "configs")
-	if _, err := os.Stat(localConfigPath); err == nil {
-		slog.Debugf("Using local configuration directory: %s", localConfigPath)
-		return localConfigPath, nil
-	}
-
-	userConfigDir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	userConfigDir = filepath.Join(userConfigDir, APP_NAME)
-	slog.Debugf("Using user configuration directory: %s", userConfigDir)
-	return userConfigDir, nil
-}
-
 func main() {
-	// Enable debug/trace from outside
-	logLevelStr := os.Getenv("LOG_LEVEL")
-	logLevel := slog.LevelByName(logLevelStr)
-	slog.Info(logLevel)
+	config, err := utils.LoadConfig()
+	if err != nil {
+		slog.Fatal("cannot load config:", err)
+	}
+	logLevel := slog.LevelByName(config.LogLevel)
 	slog.SetLogLevel(logLevel)
 
 	// Map to store timestamps for CloudEvent IDs
 	eventTimestamps := make(map[string]time.Time)
 
-	// Get configuration file path
-	configPath, err := configPath()
-	if err != nil {
-		slog.Errorf("Error getting configuration file path: %v", err)
-	}
-
-	// Load configuration (e.g., from config.yaml)
-	config, err := loadConfig(filepath.Join(configPath, "config.yaml"))
-	if err != nil {
-		slog.Errorf("Error loading configuration: %v", err)
-	}
-
 	// Initialize UDP and MQTT
-	udpConn, err := udp.NewConnection(config.UDPIpIn, config.UDPPortIn)
+	udpConn, err := utils.NewConnection(config.UDP.IpIn, config.UDP.PortIn)
 	if err != nil {
 		slog.Errorf("Error initializing UDP: %v", err)
 	}
-	slog.Debugf("Listening on UDP port %d", config.UDPPortIn)
+	slog.Debugf("Listening on UDP port %d", config.UDP.PortIn)
 
-	broker := fmt.Sprintf("%s://%s:%d", config.AWSIOTProtocol, config.AWSIOTEndpoint, config.AWSIOTPort)
-	mqttClient, err := mqtt.NewClient(broker, config.AWSClientId, config.AWSIOTCert, config.AWSIOTKey, config.AWSIOTRootCA, config.MQTTTopicIn)
+	broker := fmt.Sprintf("%s://%s:%d", config.MQTT.Protocol, config.MQTT.Endpoint, config.MQTT.Port)
+	mqttClient, err := utils.NewClient(broker, config.MQTT.ClientId, config.MQTT.CertFile, config.MQTT.KeyFile, config.MQTT.CaFile, config.MQTT.TopicOut)
 	if err != nil {
 		slog.Errorf("Error initializing MQTT: %v", err)
 	}
@@ -118,9 +39,8 @@ func main() {
 		slog.Errorf("Error opening keyboard: %v", err)
 	}
 
-	slog.Debugf("")
-	log.Println("Press 'space' to send a send a ping.")
-	log.Println("Press 'q', 'esc' or 'ctrl+c' to quit.")
+	slog.Info("Press 'space' to send a send a ping.")
+	slog.Info("Press 'q', 'esc' or 'ctrl+c' to quit.")
 	defer keyboard.Close()
 
 	// Main application loop
@@ -136,7 +56,7 @@ func main() {
 				}
 				slog.Debugf("Forwarding CloudEvent from UDP to MQTT: %s %s", ce.ID(), ce.Type())
 
-				mqttClient.Send(config.MQTTTopicOut, ce)
+				mqttClient.Send(config.MQTT.TopicOut, ce)
 
 			case mqttMsg := <-mqttClient.Receive():
 				slog.Debugf("Received MQTT message: %s", string(mqttMsg))
@@ -158,7 +78,7 @@ func main() {
 
 				slog.Debugf("Forwarding CloudEvent from MQTT to UDP: %s %s", ce.ID(), ce.Type())
 				// Process the MQTT message and possibly send it to UDP
-				udpConn.Send(config.UDPIpOut, config.UDPPortOut, ce)
+				udpConn.Send(config.UDP.IpOut, config.UDP.PortOut, ce)
 			}
 		}
 	}()
@@ -171,15 +91,14 @@ func main() {
 			if err != nil {
 				return
 			}
-			log.Println("Space bar pressed, sending ping package via UDP...")
+			slog.Println("Space bar pressed, sending ping package via UDP...")
 
-			udpConn.Send(config.UDPIpOut, config.UDPPortOut, ce)
+			udpConn.Send(config.UDP.IpOut, config.UDP.PortOut, ce)
 			eventTimestamps[ce.ID()] = time.Now()
 		}
 		if char == 'q' || key == keyboard.KeyEsc || (key == keyboard.KeyCtrlC && runtime.GOOS != "windows") {
-			log.Println("Exiting...")
+			slog.Println("Exiting...")
 			break
 		}
 	}
-
 }

@@ -72,9 +72,9 @@ This repository contains a bidirectional UDP to MQTT bridge. It seamlessly trans
 
 ### Step 6: Copy all the Certificates
 
-1. Copy all the certificates and keys to the `certs` directory in the project root.
+1. Copy all the certificates and keys to the `config/certs` directory in the project root.
 
-2. Rename the certificates and keys as follows:
+2. Rename the certificates and keys as follows or change configuration in `config.yaml`:
 
    - `cert.pem` -> `certificate.pem.crt`
    - `public.key` -> `public.pem.key`

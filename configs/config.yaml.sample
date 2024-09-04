@@ -1,18 +1,16 @@
 mqtt:
+    ca_file: "certs/AmazonRootCA1.pem"
+    cert_file: "certs/cert.pem"
+    client_id: "udp-mqtt-bridge"
     endpoint: "*************-ats.iot.eu-central-1.amazonaws.com"
+    key_file: "certs/private.key"
     port: 8883
-    clientId: "udp-mqtt-bridge"
-    certFile: "certs/cert.pem"
-    keyFile: "certs/private.key"
     protocol: "ssl"
-    rootCaFile: "certs/AmazonRootCA1.pem"
-    topics:
-        in: "topic/in"
-        out: "topic/out"
+    topic_in: "topic/in"
+    topic_out: "topic/out"
 udp:
-    in:
-        ip: "0.0.0.0"
-        port: 5000
-    out:
-        ip: "255.255.255.255"
-        port: 6000
+	ip_in: "0.0.0.0"
+	ip_out: "255.255.255.255"
+	port_in: 5000
+	port_out: 6000
+log_level: INFO # ERROR | INFO | DEBUG | TRACE 

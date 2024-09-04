@@ -1,9 +1,8 @@
-package udp
+package utils
 
 import (
 	"fmt"
 	"net"
-	"udp_mqtt_bridge/pkg/utils"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 
@@ -69,7 +68,7 @@ func (u *UDPConn) listen() {
 func (u *UDPConn) Send(ip string, port int, ce cloudevents.Event) error {
 	// Convert the CloudEvent to a string
 	slog.Infof("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
-	message, err := utils.MarshallCloudEvent(ce)
+	message, err := MarshallCloudEvent(ce)
 	if err != nil {
 		slog.Errorf("Error marshalling CloudEvent: %v", err)
 		return err
@@ -122,7 +121,7 @@ func (c *Connection) Receive() chan []byte {
 func (c *Connection) Send(ip string, port int, ce cloudevents.Event) error {
 	// Convert the CloudEvent to a string
 	slog.Infof("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
-	message, err := utils.MarshallCloudEvent(ce)
+	message, err := MarshallCloudEvent(ce)
 	if err != nil {
 		slog.Errorf("Error marshalling CloudEvent: %v", err)
 		return err
