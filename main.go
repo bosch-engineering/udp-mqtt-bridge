@@ -1,6 +1,10 @@
 package main
 
 import (
+	"udp_mqtt_bridge/pkg/mqtt"
+	"udp_mqtt_bridge/pkg/udp"
+	"udp_mqtt_bridge/pkg/utils"
+
 	"fmt"
 	"io"
 	"log"
@@ -8,18 +12,13 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
-	"udp_mqtt_bridge/pkg/mqtt"
-	"udp_mqtt_bridge/pkg/udp"
-	"udp_mqtt_bridge/pkg/utils"
 
 	"github.com/eiannone/keyboard"
-
-	"gopkg.in/yaml.v2"
-
 	"github.com/gookit/slog"
+	"gopkg.in/yaml.v2"
 )
 
-const CONFIG_DIRECTORY = "udp-mqtt-bridge"
+const APP_NAME = "udp-mqtt-bridge"
 
 // Config represents the application configuration.
 type Config struct {
@@ -74,12 +73,18 @@ func configPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	userConfigDir = filepath.Join(userConfigDir, CONFIG_DIRECTORY)
+	userConfigDir = filepath.Join(userConfigDir, APP_NAME)
 	slog.Debugf("Using user configuration directory: %s", userConfigDir)
 	return userConfigDir, nil
 }
 
 func main() {
+	// Enable debug/trace from outside
+	logLevelStr := os.Getenv("LOG_LEVEL")
+	logLevel := slog.LevelByName(logLevelStr)
+	slog.Info(logLevel)
+	slog.SetLogLevel(logLevel)
+
 	// Map to store timestamps for CloudEvent IDs
 	eventTimestamps := make(map[string]time.Time)
 
