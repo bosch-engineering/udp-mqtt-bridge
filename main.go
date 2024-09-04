@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	slog.Std().ChannelName = "udp-mqtt-bridge"
+
 	config, err := utils.LoadConfig()
 	if err != nil {
 		slog.Fatal("cannot load config:", err)
