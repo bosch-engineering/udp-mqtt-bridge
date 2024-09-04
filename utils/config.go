@@ -52,6 +52,8 @@ func LoadConfig() (*Config, error) {
 	v.AddConfigPath("./configs")                        // optionally look for config in the working directory
 	v.AddConfigPath(".")
 
+	v.Set("title", "udp-mqtt-bridge")
+
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return config, err
