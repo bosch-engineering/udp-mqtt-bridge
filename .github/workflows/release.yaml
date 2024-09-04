@@ -38,21 +38,19 @@ jobs:
         run: echo "EXTENSION=.exe" | Out-File -FilePath $env:GITHUB_ENV -Append # no need for -Encoding utf8
 
       - name: Build binary
-        run: go build -o "out/udp-mtqq-bridge${{ env.EXTENSION }}" ./cmd/main.go
+        run: go build -o "out/udp-mtqq-bridge${{ env.EXTENSION }}" ./main.go
 
-      - name: Copy certs and configs
+      - name: Copy configs
         if: ${{ matrix.os != 'windows' }}
         run: |
-          cp -r certs out/certs
           cp -r configs out/configs
           cp -r LICENSE out/
           cp -r CHANGELOG.md out/
           cp -r README.md out/
 
-      - name: Copy certs and configs
+      - name: Copy configs
         if: ${{ matrix.os == 'windows' }}
         run: |
-          xcopy certs out\certs /E /I /Y
           xcopy configs out\configs /E /I /Y
           xcopy LICENSE out /I /Y
           xcopy CHANGELOG.md out /I /Y

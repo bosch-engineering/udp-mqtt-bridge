@@ -1,12 +1,12 @@
-package udp
+package utils
 
 import (
 	"fmt"
-	"log"
 	"net"
-	"udp_mqtt_bridge/pkg/utils"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+
+	"github.com/gookit/slog"
 )
 
 // UDP connection struct
@@ -22,18 +22,18 @@ func (u *UDPConn) Receive() <-chan []byte {
 
 // NewConnection creates a new UDP connection.
 func NewConnection(ip string, portIn int) (*UDPConn, error) {
-	log.Printf("Initializing UDP connection on port %d", portIn)
+	slog.Infof("Initializing UDP connection on port %d", portIn)
 
 	// Initialize UDP connection
 	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(ip, fmt.Sprint(portIn)))
 	if err != nil {
-		log.Fatalf("Error resolving UDP address: %v", err)
+		slog.Errorf("Error resolving UDP address: %v", err)
 		return nil, err
 	}
 
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
-		log.Fatalf("Error listening on UDP port: %v", err)
+		slog.Errorf("Error listening on UDP port: %v", err)
 		return nil, err
 	}
 
@@ -54,7 +54,7 @@ func (u *UDPConn) listen() {
 	for {
 		n, _, err := u.conn.ReadFromUDP(buf)
 		if err != nil {
-			log.Printf("Error receiving UDP packet: %v", err)
+			slog.Infof("Error receiving UDP packet: %v", err)
 			continue
 		}
 		// Copy the received data to avoid overwriting
@@ -67,10 +67,10 @@ func (u *UDPConn) listen() {
 // Method to send UDP packets
 func (u *UDPConn) Send(ip string, port int, ce cloudevents.Event) error {
 	// Convert the CloudEvent to a string
-	log.Printf("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
-	message, err := utils.MarshallCloudEvent(ce)
+	slog.Infof("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
+	message, err := MarshallCloudEvent(ce)
 	if err != nil {
-		log.Fatalf("Error marshalling CloudEvent: %v", err)
+		slog.Errorf("Error marshalling CloudEvent: %v", err)
 		return err
 	}
 
@@ -81,7 +81,7 @@ func (u *UDPConn) Send(ip string, port int, ce cloudevents.Event) error {
 
 	_, err = u.conn.WriteToUDP(message, addr)
 	if err != nil {
-		log.Printf("Error sending UDP packet: %v", err)
+		slog.Infof("Error sending UDP packet: %v", err)
 	}
 	return err
 }
@@ -95,7 +95,7 @@ type Connection struct {
 func (c *Connection) RemoteAddress(ip string, port int) (*net.UDPAddr, error) {
 	addr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", ip, port))
 	if err != nil {
-		log.Fatalf("Error resolving UDP address: %v", err)
+		slog.Errorf("Error resolving UDP address: %v", err)
 		return nil, err
 	}
 	return addr, nil
@@ -109,7 +109,7 @@ func (c *Connection) Receive() chan []byte {
 			buf := make([]byte, 1024) // Move buffer initialization inside the loop
 			n, _, err := c.conn.ReadFromUDP(buf)
 			if err != nil {
-				log.Printf("Error receiving UDP packet: %v", err) // Log the error instead of fatal
+				slog.Infof("Error receiving UDP packet: %v", err) // Log the error instead of fatal
 				continue                                          // Continue listening for packets
 			}
 			ch <- buf[:n]
@@ -120,10 +120,10 @@ func (c *Connection) Receive() chan []byte {
 
 func (c *Connection) Send(ip string, port int, ce cloudevents.Event) error {
 	// Convert the CloudEvent to a string
-	log.Printf("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
-	message, err := utils.MarshallCloudEvent(ce)
+	slog.Infof("Sending UDP CloudEvent message: %s %s", ce.ID(), ce.Type())
+	message, err := MarshallCloudEvent(ce)
 	if err != nil {
-		log.Fatalf("Error marshalling CloudEvent: %v", err)
+		slog.Errorf("Error marshalling CloudEvent: %v", err)
 		return err
 	}
 
@@ -134,7 +134,7 @@ func (c *Connection) Send(ip string, port int, ce cloudevents.Event) error {
 
 	_, err = c.conn.WriteToUDP(message, addr)
 	if err != nil {
-		log.Printf("Error sending UDP packet: %v", err) // Log the error
+		slog.Infof("Error sending UDP packet: %v", err) // Log the error
 	}
 	return err
 }
