@@ -11,6 +11,6 @@ mqtt:
 udp:
 	ip_in: "0.0.0.0"
 	ip_out: "255.255.255.255"
-	port_in: 5000
-	port_out: 6000
+	port_in: 6000
+	port_out: 6001wip
 log_level: INFO # ERROR | INFO | DEBUG | TRACE 
