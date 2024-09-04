@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.15...v1.1.0) (2024-09-04)
+
+
+### Features
+
+* migrate config to viper ([#20](https://github.com/BernhardRode/udp-mqtt-bridge/issues/20)) ([3df1424](https://github.com/BernhardRode/udp-mqtt-bridge/commit/3df1424f765b833c0a53ed57329ce026a36652b8))
+
 ## [1.0.15](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.14...v1.0.15) (2024-08-16)
 
 
