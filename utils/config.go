@@ -39,7 +39,7 @@ func LoadConfig() (*Config, error) {
 
 	v := viper.New()
 
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 	v.SetEnvPrefix("bridge")
 
