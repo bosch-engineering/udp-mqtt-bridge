@@ -86,6 +86,20 @@ func (u *UDPConn) Send(ip string, port int, ce cloudevents.Event) error {
 	return err
 }
 
+// Method to send UDP packets
+func (u *UDPConn) SendRaw(ip string, port int, raw []byte) error {
+	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(ip, fmt.Sprint(port)))
+	if err != nil {
+		return err
+	}
+
+	_, err = u.conn.WriteToUDP(raw, addr)
+	if err != nil {
+		slog.Infof("Error sending UDP packet: %v", err)
+	}
+	return err
+}
+
 // Connection represents a UDP connection.
 type Connection struct {
 	conn *net.UDPConn

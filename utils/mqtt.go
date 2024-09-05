@@ -57,7 +57,7 @@ func NewClient(broker, clientId, certFile, keyFile, caFile, topic string) (*MQTT
 			RootCAs:      caCertPool,
 		},
 		OnConnectionUp: func(cm *autopaho.ConnectionManager, connAck *paho.Connack) {
-			slog.Info("MQTT connection up.")
+			slog.Info("Connected to MQTT broker")
 
 			_, err := cm.Subscribe(context.Background(), &paho.Subscribe{
 				Subscriptions: []paho.SubscribeOptions{
@@ -163,6 +163,11 @@ func (c *MQTTClient) SendMessage(topic string, data string) error {
 		return fmt.Errorf("failed to create CloudEvent: %v", err)
 	}
 	return c.Send(topic, ce)
+}
+
+// Send Raw Message
+func (c *MQTTClient) SendRaw(topic string, raw []byte) error {
+	return c.Publish(topic, 0, false, raw)
 }
 
 // Receive returns the receive channel for MQTT messages.
