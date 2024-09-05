@@ -1,3 +1,4 @@
+log_level: INFO # ERROR | INFO | DEBUG | TRACE 
 mqtt:
     ca_file: "certs/AmazonRootCA1.pem"
     cert_file: "certs/cert.pem"
@@ -13,4 +14,3 @@ udp:
 	ip_out: "255.255.255.255"
 	port_in: 5000
 	port_out: 6000
-log_level: INFO # ERROR | INFO | DEBUG | TRACE 

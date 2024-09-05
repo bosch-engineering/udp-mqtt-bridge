@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gookit/slog"
@@ -29,9 +31,10 @@ type UDP struct {
 
 // Config represents the application configuration.
 type Config struct {
-	MQTT     MQTT   `mapstructure:"mqtt"`
-	UDP      UDP    `mapstructure:"udp"`
-	LogLevel string `mapstructure:"log_level"`
+	MQTT         MQTT   `mapstructure:"mqtt"`
+	UDP          UDP    `mapstructure:"udp"`
+	LogLevel     string `mapstructure:"log_level"`
+	ConfigFolder string
 }
 
 func LoadConfig() (*Config, error) {
@@ -59,17 +62,29 @@ func LoadConfig() (*Config, error) {
 			return config, err
 		}
 	}
-	slog.Debugf("Using config file: %s", v.ConfigFileUsed())
+	config.ConfigFolder = filepath.Dir(v.ConfigFileUsed())
+	slog.Debugf("Using config folder: %s", config.ConfigFolder)
 
 	bcast, err := GetBroadcastAddress()
 	if err != nil {
 		return config, fmt.Errorf("error getting broadcast address: %v", err)
 	}
 
-	v.SetDefault("mqtt.client_id", "udp-mqtt-bridge")
+	hostname := os.Getenv("HOSTNAME")
+	if hostname == "" {
+		hostname, _ = os.Hostname()
+	}
+	if hostname == "" {
+		hostname = "udp-mqtt-bridge"
+	}
+
 	v.SetDefault("log_level", "INFO")
-	v.SetDefault("mqtt.protocol", "SSL")
+	v.SetDefault("mqtt.ca_file", "certs/AmazonRootCA1.pem")
+	v.SetDefault("mqtt.cert_file", "certs/certificate.pem.crt")
+	v.SetDefault("mqtt.client_id", hostname)
+	v.SetDefault("mqtt.key_file", "certs/private.pem.key")
 	v.SetDefault("mqtt.port", 8883)
+	v.SetDefault("mqtt.protocol", "SSL")
 	v.SetDefault("mqtt.topic_in", "topic/in")
 	v.SetDefault("mqtt.topic_out", "topic/out")
 	v.SetDefault("udp.ip_in", "0.0.0.0")

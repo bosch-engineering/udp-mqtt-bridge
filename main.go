@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"runtime"
 	"strconv"
-	"github.com/bosch-engineering/udp-mqtt-bridge/utils"
 
+	"github.com/bosch-engineering/udp-mqtt-bridge/utils"
 	"github.com/eiannone/keyboard"
 	"github.com/gookit/slog"
 	"golang.org/x/exp/rand"
@@ -18,13 +19,13 @@ func main() {
 	if err != nil {
 		slog.Fatal("cannot load config:", err)
 	}
+
 	logLevel := slog.LevelByName(config.LogLevel)
 	slog.SetLogLevel(logLevel)
 
 	// Map to store timestamps for CloudEvent IDs
 	// eventTimestamps := make(map[string]time.Time)
 
-	// Initialize UDP and MQTT
 	udpConn, err := utils.NewConnection(config.UDP.IpIn, config.UDP.PortIn)
 	if err != nil {
 		slog.Errorf("Error initializing UDP: %v", err)
@@ -32,7 +33,14 @@ func main() {
 	slog.Infof("Listening on UDP port %d", config.UDP.PortIn)
 
 	broker := fmt.Sprintf("%s://%s:%d", config.MQTT.Protocol, config.MQTT.Endpoint, config.MQTT.Port)
-	mqttClient, err := utils.NewClient(broker, config.MQTT.ClientId, config.MQTT.CertFile, config.MQTT.KeyFile, config.MQTT.CaFile, config.MQTT.TopicIn)
+	mqttClient, err := utils.NewClient(
+		broker,
+		config.MQTT.ClientId,
+		filepath.Join(config.ConfigFolder, config.MQTT.CertFile),
+		filepath.Join(config.ConfigFolder, config.MQTT.KeyFile),
+		filepath.Join(config.ConfigFolder, config.MQTT.CaFile),
+		config.MQTT.TopicIn,
+	)
 	if err != nil {
 		slog.Errorf("Error initializing MQTT: %v", err)
 	}
