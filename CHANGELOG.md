@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.3...v1.2.4) (2024-09-05)
+
+
+### Bug Fixes
+
+* update dependencies ([da7c75f](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/da7c75fe48d7220ed1aef0b32663d2ca260f8b28))
+
 ## [1.2.3](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.2...v1.2.3) (2024-09-05)
 
 
