@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.1.0...v1.2.0) (2024-09-05)
+
+
+### Features
+
+* relay raw messages over mqtt ([#23](https://github.com/BernhardRode/udp-mqtt-bridge/issues/23)) ([6ff8304](https://github.com/BernhardRode/udp-mqtt-bridge/commit/6ff8304281eeab36dca4310aaabc2972fb4bb07f))
+
 ## [1.1.0](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.0.15...v1.1.0) (2024-09-04)
 
 
