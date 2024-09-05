@@ -70,6 +70,8 @@ func NewClient(broker, clientId, certFile, keyFile, caFile, topic string) (*MQTT
 			if err != nil {
 				slog.Errorf("failed to subscribe to topic: %v", err)
 			}
+
+			slog.Infof("Subscribed to topic: %s", topic)
 		},
 		OnConnectError: func(err error) {
 			slog.Errorf("MQTT error whilst attempting connection: %s\n", err)
@@ -80,6 +82,7 @@ func NewClient(broker, clientId, certFile, keyFile, caFile, topic string) (*MQTT
 			ClientID: clientId,
 			OnPublishReceived: []func(paho.PublishReceived) (bool, error){
 				func(pr paho.PublishReceived) (bool, error) {
+					slog.Tracef("Receive::MQTT(%s): %s", pr.Packet.Topic, pr.Packet.Payload)
 					receiveChan <- []byte(string(pr.Packet.Payload))
 					return true, nil
 				}},
@@ -120,27 +123,6 @@ func (c *MQTTClient) Publish(topic string, qos byte, retained bool, payload inte
 	return err
 }
 
-// Subscribe subscribes to the specified topic and pushes messages into receiveChan.
-func (c *MQTTClient) Subscribe(topic string) error {
-	_, err := c.client.Subscribe(context.Background(), &paho.Subscribe{
-		Subscriptions: []paho.SubscribeOptions{
-			{
-				Topic: topic,
-				QoS:   0,
-			},
-		},
-	})
-	return err
-}
-
-// Unsubscribe unsubscribes from the specified topic.
-func (c *MQTTClient) Unsubscribe(topic string) error {
-	_, err := c.client.Unsubscribe(context.Background(), &paho.Unsubscribe{
-		Topics: []string{topic},
-	})
-	return err
-}
-
 // Disconnect disconnects the MQTT client.
 func (c *MQTTClient) Disconnect() error {
 	return c.client.Disconnect(context.Background())
@@ -167,6 +149,7 @@ func (c *MQTTClient) SendMessage(topic string, data string) error {
 
 // Send Raw Message
 func (c *MQTTClient) SendRaw(topic string, raw []byte) error {
+	slog.Tracef("Send::MQTT(%s): %s", topic, string(raw))
 	return c.Publish(topic, 0, false, raw)
 }
 
