@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.1...v1.2.2) (2024-09-05)
+
+
+### Bug Fixes
+
+* update module definition ([9b8810e](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/9b8810ebdc6dad2a3e24bfb09fbab80a0342f4c4))
+* update module name ([56c199e](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/56c199eb7cc48163446e329b6673bc180e53d955))
+
 ## [1.2.1](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.2.0...v1.2.1) (2024-09-05)
 
 
