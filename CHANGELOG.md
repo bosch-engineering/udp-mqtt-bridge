@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.2.0...v1.2.1) (2024-09-05)
+
+
+### Bug Fixes
+
+* binary name and mqtt issue ([#25](https://github.com/BernhardRode/udp-mqtt-bridge/issues/25)) ([c23ffd7](https://github.com/BernhardRode/udp-mqtt-bridge/commit/c23ffd728db644a1d5ab264e78e590a65fdd7b1b))
+
 ## [1.2.0](https://github.com/BernhardRode/udp-mqtt-bridge/compare/v1.1.0...v1.2.0) (2024-09-05)
 
 
