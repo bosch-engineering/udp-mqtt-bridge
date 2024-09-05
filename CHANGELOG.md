@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.2...v1.2.3) (2024-09-05)
+
+
+### Bug Fixes
+
+* simplify config loading ([ba6ead9](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/ba6ead9563da6b679ab9dfad6c75d595cf779f2d))
+
 ## [1.2.2](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.1...v1.2.2) (2024-09-05)
 
 
