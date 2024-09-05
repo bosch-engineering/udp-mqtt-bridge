@@ -4,6 +4,36 @@
 
 This repository contains a bidirectional UDP to MQTT bridge. It seamlessly translates data between UDP packets and MQTT messages, enabling interoperability between UDP and MQTT-based systems.
 
+### Send Signals from Pruefstand to Simulator
+
+```mermaid
+flowchart TD
+   Pruefstand --Signals--> AVL/Intime
+   AVL/Intime --UDP--> BridgePruefstand
+   BridgePruefstand --MQTT(topic/pruefstand-out)--> AWS
+   AWS --MQTT(topic/simulator-in)--> BridgeSimulator
+   BridgeSimulator --UDP--> ViGrade
+   ViGrade --Signals--> Simulator
+   Simulator--Signals--> ViGrade
+   ViGrade --UDP--> BridgeSimulator
+   BridgeSimulator --MQTT(topic/simulator-out)--> AWS
+   AWS --MQTT(topic/pruefstand-in)--> BridgePruefstand
+   BridgePruefstand --UDP--> AVL/Intime
+   AVL/Intime --Signals--> Pruefstand
+```
+
+AVL-->Intime;
+Intime-->BridgePruefstand;
+BridgePruefstand-->AWS;
+AWS-->BridgeSimulator;
+BridgeSimulator-->Simulator;
+Simulator-->BridgeSimulator;
+BridgeSimulator-->AWS;
+AWS-->BridgePruefstand;
+BridgePruefstand-->Intime;
+Intime-->AVL;
+AVL-->Pruefstand;
+
 ## Creating an IoT Thing and Downloading Certificates Using AWS CLI
 
 ### Step 1: Create an IoT Thing

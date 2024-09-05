@@ -38,7 +38,7 @@ jobs:
         run: echo "EXTENSION=.exe" | Out-File -FilePath $env:GITHUB_ENV -Append # no need for -Encoding utf8
 
       - name: Build binary
-        run: go build -o "out/udp-mtqq-bridge${{ env.EXTENSION }}" ./main.go
+        run: go build -o "out/udp-mqtt-bridge${{ env.EXTENSION }}" ./main.go
 
       - name: Copy configs
         if: ${{ matrix.os != 'windows' }}
@@ -59,7 +59,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: udp-mtqq-bridge-${{ matrix.os }}-${{ matrix.arch }}
+          name: udp-mqtt-bridge-${{ matrix.os }}-${{ matrix.arch }}
           path: out/
 
   release:
