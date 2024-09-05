@@ -1,4 +1,4 @@
-module udp_mqtt_bridge
+module github.com/bosch-engineering/udp-mqtt-bridge
 
 go 1.22.2
 
