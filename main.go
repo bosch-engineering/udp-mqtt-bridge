@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
-	"udp_mqtt_bridge/utils"
+	"github.com/bosch-engineering/udp-mqtt-bridge/utils"
 
 	"github.com/eiannone/keyboard"
 	"github.com/gookit/slog"
