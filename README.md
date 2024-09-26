@@ -4,7 +4,7 @@
 
 This repository contains a bidirectional UDP to MQTT bridge. It seamlessly translates data between UDP packets and MQTT messages, enabling interoperability between UDP and MQTT-based systems.
 
-### Send Signals from Pruefstand to Simulator
+### Send Signals from Pruefstand to Simulator AWESOME
 
 ```mermaid
 flowchart TD
