@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.4...v1.3.0) (2024-09-26)
+
+
+### Features
+
+* this feature is so awesome ([#30](https://github.com/bosch-engineering/udp-mqtt-bridge/issues/30)) ([f217512](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/f217512fa874bc5d64a60f56bb46d625dcc60db5))
+
 ## [1.2.4](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.3...v1.2.4) (2024-09-05)
 
 
