@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.3.0...v1.4.0) (2024-10-17)
+
+
+### Features
+
+* removing arm64 support ([#33](https://github.com/bosch-engineering/udp-mqtt-bridge/issues/33)) ([fe94ead](https://github.com/bosch-engineering/udp-mqtt-bridge/commit/fe94eada4d287c9d0b02ab34fb46f39ca377e4b7))
+
 ## [1.3.0](https://github.com/bosch-engineering/udp-mqtt-bridge/compare/v1.2.4...v1.3.0) (2024-09-26)
 
 
